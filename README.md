@@ -3,7 +3,7 @@ tabwriter is a crate that implements
 provides both a library for wrapping Rust `Writer`s and a small program that 
 exposes the same functionality at the command line.
 
-[![Build status](https://api.travis-ci.org/BurntSushi/rust-csv.png)](https://travis-ci.org/BurntSushi/rust-csv)
+[![Build status](https://api.travis-ci.org/BurntSushi/tabwriter.png)](https://travis-ci.org/BurntSushi/tabwriter)
 
 Licensed under the [UNLICENSE](http://unlicense.org).
 
