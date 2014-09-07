@@ -1,0 +1,15 @@
+[package]
+name = "tabwriter"
+version = "0.1.0"
+authors = ["Andrew Gallant <jamslam@gmail.com>"]
+
+[lib]
+name = "tabwriter"
+
+[[bin]]
+name = "tabwriter"
+doc = false
+test = false
+
+[dependencies.docopt_macros]
+git = "git://github.com/docopt/docopt.rs"
