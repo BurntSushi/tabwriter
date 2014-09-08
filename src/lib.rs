@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 //! This crate provides an implementation of
 //! [elastic tabstops](http://nickgravgaard.com/elastictabstops/index.html).
 //! It is a minimal port of Go's

@@ -2,14 +2,11 @@
 
 extern crate libc;
 extern crate serialize;
-
 extern crate docopt;
 #[phase(plugin)] extern crate docopt_macros;
-
 extern crate tabwriter;
 
 use std::io;
-
 use tabwriter::TabWriter;
 
 docopt!(Args, "
