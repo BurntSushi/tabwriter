@@ -183,7 +183,7 @@ impl<W: Writer> TabWriter<W> {
     /// Return a mutable view of the current line of cells.
     fn curline_mut(&mut self) -> &mut Vec<Cell> {
         let i = self.lines.len() - 1;
-        self.lines.get_mut(i)
+        &mut self.lines[i]
     }
 }
 
@@ -284,7 +284,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: uint) -> Vec<Vec<uint>> {
             }
             assert!(contig_count >= 1);
             for j in range(i, i+contig_count) {
-                ws.get_mut(j).push(width);
+                ws[j].push(width);
             }
         }
     }

@@ -5,7 +5,7 @@ use TabWriter;
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
         Ok(r) => r,
-        Err(e) => fail!("{}", e.to_string()),
+        Err(e) => panic!("{}", e.to_string()),
     }
 }
 
@@ -31,7 +31,7 @@ fn iseq(tw: TabWriter<io::MemWriter>, s: &str, expected: &str) {
     if expected != got {
         let expected = readable_str(expected);
         let got = readable_str(got);
-        fail!("expected = '{}' != '{}' = got", expected, got);
+        panic!("expected = '{}' != '{}' = got", expected, got);
     }
 }
 
