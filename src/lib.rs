@@ -90,9 +90,8 @@ pub struct TabWriter<W> {
     buf: io::MemWriter,
     lines: Vec<Vec<Cell>>,
     curcell: Cell,
-
-    _minwidth: uint,
-    _padding: uint,
+    minwidth: uint,
+    padding: uint,
 }
 
 #[deriving(Clone, Show)]
@@ -116,9 +115,8 @@ impl<W: Writer> TabWriter<W> {
             buf: io::MemWriter::with_capacity(1024),
             lines: vec!(vec!()),
             curcell: Cell::new(0),
-
-            _minwidth: 2,
-            _padding: 2,
+            minwidth: 2,
+            padding: 2,
         }
     }
 
@@ -128,7 +126,7 @@ impl<W: Writer> TabWriter<W> {
     ///
     /// The default minimum width is `2`.
     pub fn minwidth(mut self, minwidth: uint) -> TabWriter<W> {
-        self._minwidth = minwidth;
+        self.minwidth = minwidth;
         self
     }
 
@@ -139,7 +137,7 @@ impl<W: Writer> TabWriter<W> {
     ///
     /// The default padding is `2`.
     pub fn padding(mut self, padding: uint) -> TabWriter<W> {
-        self._padding = padding;
+        self.padding = padding;
         self
     }
 
@@ -228,7 +226,7 @@ impl<W: Writer> Writer for TabWriter<W> {
         if self.curcell.size > 0 {
             self.term_curcell();
         }
-        let widths = cell_widths(&self.lines, self._minwidth);
+        let widths = cell_widths(&self.lines, self.minwidth);
 
         // This is a trick to avoid allocating padding for every cell.
         // Just allocate the most we'll ever need and borrow from it.
@@ -236,7 +234,7 @@ impl<W: Writer> Writer for TabWriter<W> {
                                   .map(|ws| ws.iter().map(|&w|w).max()
                                               .unwrap_or(0))
                                   .max().unwrap_or(0);
-        let padding = String::from_char(biggest_width + self._padding, ' ');
+        let padding = String::from_char(biggest_width + self.padding, ' ');
         let padding = padding.as_slice();
 
         let mut first = true;
@@ -250,7 +248,7 @@ impl<W: Writer> Writer for TabWriter<W> {
                     assert_eq!(i, line.len()-1);
                 } else {
                     assert!(widths[i] >= cell.width);
-                    let padsize = self._padding + widths[i] - cell.width;
+                    let padsize = self.padding + widths[i] - cell.width;
                     try!(self.w.write_str(padding.slice_chars(0, padsize)));
                 }
             }
