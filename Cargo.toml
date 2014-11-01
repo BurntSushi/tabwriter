@@ -11,5 +11,5 @@ name = "tabwriter"
 doc = false
 test = false
 
-[dependencies.docopt_macros]
+[dependencies.docopt]
 git = "git://github.com/docopt/docopt.rs"

@@ -3,13 +3,12 @@
 extern crate libc;
 extern crate serialize;
 extern crate docopt;
-#[phase(plugin)] extern crate docopt_macros;
 extern crate tabwriter;
 
 use std::io;
 use tabwriter::TabWriter;
 
-docopt!(Args, "
+static USAGE: &'static str = "
 Usage:
     tabwriter [options]
 
@@ -20,11 +19,18 @@ Options:
                         [default: 2]
     -h, --help          Display this message
     --version           Print version info and exit
-", flag_pad: uint, flag_width: uint)
+";
+
+#[deriving(Decodable)]
+struct Args {
+    flag_pad: uint,
+    flag_width: uint,
+}
 
 fn main() {
-    let args: Args = docopt::FlagParser::parse_conf(arg_config())
-                                        .unwrap_or_else(|e| e.exit());
+    let args: Args = docopt::docopt_conf(arg_config(), USAGE)
+                            .and_then(|vmap| vmap.decode())
+                            .unwrap_or_else(|e| e.exit());
     let mut tw = TabWriter::new(io::stdout())
                            .minwidth(args.flag_width)
                            .padding(args.flag_pad);
