@@ -1,11 +1,10 @@
-#![feature(phase)]
-
 extern crate libc;
 extern crate serialize;
 extern crate docopt;
 extern crate tabwriter;
 
 use std::io;
+use docopt::Docopt;
 use tabwriter::TabWriter;
 
 static USAGE: &'static str = "
@@ -28,8 +27,8 @@ struct Args {
 }
 
 fn main() {
-    let args: Args = docopt::docopt_conf(arg_config(), USAGE)
-                            .and_then(|vmap| vmap.decode())
+    let args: Args = Docopt::new(USAGE)
+                            .and_then(|d| d.version(Some(version())).decode())
                             .unwrap_or_else(|e| e.exit());
     let mut tw = TabWriter::new(io::stdout())
                            .minwidth(args.flag_width)
@@ -47,14 +46,6 @@ fn version() -> String {
     match (maj, min, pat) {
         (Some(maj), Some(min), Some(pat)) => format!("{}.{}.{}", maj, min, pat),
         _ => "".to_string(),
-    }
-}
-
-pub fn arg_config() -> docopt::Config {
-    docopt::Config {
-        options_first: false,
-        help: true,
-        version: Some(version()),
     }
 }
 
