@@ -53,7 +53,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
         Ok(r) => r,
         Err(e) => {
-            {writeln!(io::stderr(), "{}", e.to_string())}.unwrap();
+            io::stderr().write_str(e.to_string().as_slice()).unwrap();
             unsafe { libc::exit(1 as libc::c_int) }
         }
     }

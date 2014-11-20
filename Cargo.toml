@@ -2,6 +2,13 @@
 name = "tabwriter"
 version = "0.1.1"
 authors = ["Andrew Gallant <jamslam@gmail.com>"]
+description = "Elastic tabstops."
+documentation = "http://burntsushi.net/rustdoc/tabwriter/"
+homepage = "https://github.com/BurntSushi/tabwriter"
+repository = "https://github.com/BurntSushi/tabwriter"
+readme = "README.md"
+keywords = ["tabs", "elastic", "aligned", "whitespace", "table"]
+license = "Unlicense"
 
 [lib]
 name = "tabwriter"
@@ -11,5 +18,5 @@ name = "tabwriter"
 doc = false
 test = false
 
-[dependencies.docopt]
-git = "git://github.com/docopt/docopt.rs"
+[dependencies]
+docopt = "~0.6.8"

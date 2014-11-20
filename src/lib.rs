@@ -239,7 +239,7 @@ impl<W: Writer> Writer for TabWriter<W> {
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
-            if !first { try!(write!(self.w, "\n")); } else { first = false }
+            if !first { try!(self.w.write(b"\n")); } else { first = false }
             for (i, cell) in line.iter().enumerate() {
                 let bytes = self.buf.get_ref().slice(cell.start,
                                                      cell.start + cell.size);
