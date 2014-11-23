@@ -73,6 +73,7 @@
 
 use std::cmp;
 use std::io;
+use std::iter::AdditiveIterator;
 use std::mem;
 use std::str;
 
@@ -192,7 +193,7 @@ impl Cell {
 
     fn update_width(&mut self, buf: &[u8]) {
         let end = self.start + self.size;
-        self.width = utf8_char_count(buf.slice(self.start, end));
+        self.width = display_columns(buf.slice(self.start, end));
     }
 }
 
@@ -289,13 +290,11 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: uint) -> Vec<Vec<uint>> {
     ws
 }
 
-fn utf8_char_count(bytes: &[u8]) -> uint {
-    let mut i = 0;
-    let mut count = 0;
-    while i < bytes.len() {
-        let size = cmp::max(1, str::utf8_char_width(bytes[i]));
-        i += size;
-        count += size;
+fn display_columns(bytes: &[u8]) -> uint {
+    // If we have a Unicode string, then attempt to guess the number of
+    // *display* columns used.
+    match str::from_utf8(bytes) {
+        None => bytes.len(),
+        Some(s) => s.chars().map(|c| c.width(false).unwrap_or(0)).sum(),
     }
-    count
 }

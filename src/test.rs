@@ -10,9 +10,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
 }
 
 fn readable_str<S: StrAllocating>(s: S) -> String {
-    s.replace("\n", "\\n")
-     .replace("\t", "\\t")
-     .replace(" ", "·")
+    s.replace(" ", "·")
 }
 
 fn tabw() -> TabWriter<io::MemWriter> {
@@ -31,7 +29,9 @@ fn iseq(tw: TabWriter<io::MemWriter>, s: &str, expected: &str) {
     if expected != got {
         let expected = readable_str(expected);
         let got = readable_str(got);
-        panic!("expected = '{}' != '{}' = got", expected, got);
+        // panic!("expected = '{}' != '{}' = got", expected, got); 
+        panic!("\n\nexpected:\n-----\n{}\n-----\ngot:\n-----\n{}\n-----\n\n",
+               expected, got);
     }
 }
 
@@ -108,6 +108,14 @@ fn test_contiguous_columns() {
          "x foo    x\nx foofoo x\n\nx foofoofoo x");
 }
 
+#[test]
+fn test_unicode() {
+    iseq(tabw().padding(2).minwidth(2),
+         "a\tÞykkvibær\tz\naaaa\tïn Bou Chella\tzzzz\na\tBâb el Ahmar\tz",
+         "a     Þykkvibær      z\n\
+          aaaa  ïn Bou Chella  zzzz\n\
+          a     Bâb el Ahmar   z")
+}
 
 #[test]
 fn test_contiguous_columns_complex() {
