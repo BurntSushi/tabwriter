@@ -20,7 +20,7 @@ fn tabw() -> TabWriter<io::MemWriter> {
 fn tabify(mut tw: TabWriter<io::MemWriter>, s: &str) -> String {
     ordie(tw.write_str(s));
     ordie(tw.flush());
-    ordie(String::from_utf8(tw.unwrap().unwrap()))
+    ordie(String::from_utf8(tw.unwrap().into_inner()))
 }
 
 fn iseq(tw: TabWriter<io::MemWriter>, s: &str, expected: &str) {
@@ -29,7 +29,7 @@ fn iseq(tw: TabWriter<io::MemWriter>, s: &str, expected: &str) {
     if expected != got {
         let expected = readable_str(expected);
         let got = readable_str(got);
-        // panic!("expected = '{}' != '{}' = got", expected, got); 
+        // panic!("expected = '{}' != '{}' = got", expected, got);
         panic!("\n\nexpected:\n-----\n{}\n-----\ngot:\n-----\n{}\n-----\n\n",
                expected, got);
     }

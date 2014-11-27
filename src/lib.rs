@@ -23,7 +23,7 @@
 //! ").unwrap();
 //! tw.flush().unwrap();
 //!
-//! let written = String::from_utf8(tw.unwrap().unwrap()).unwrap();
+//! let written = String::from_utf8(tw.unwrap().into_inner()).unwrap();
 //! assert_eq!(written.as_slice(), "
 //! Bruce Springsteen  Born to Run
 //! Bob Seger          Night Moves
@@ -58,7 +58,7 @@
 //!").unwrap();
 //! tw.flush().unwrap();
 //!
-//! let written = String::from_utf8(tw.unwrap().unwrap()).unwrap();
+//! let written = String::from_utf8(tw.unwrap().into_inner()).unwrap();
 //! assert_eq!(written.as_slice(), "
 //!fn foobar() {
 //!    let mut x = 1+1;       // addition
