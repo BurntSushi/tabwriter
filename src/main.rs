@@ -1,5 +1,5 @@
 extern crate libc;
-extern crate serialize;
+extern crate "rustc-serialize" as rustc_serialize;
 extern crate docopt;
 extern crate tabwriter;
 
@@ -20,7 +20,7 @@ Options:
     --version           Print version info and exit
 ";
 
-#[deriving(Decodable)]
+#[deriving(RustcDecodable)]
 struct Args {
     flag_pad: uint,
     flag_width: uint,
