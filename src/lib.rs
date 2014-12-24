@@ -294,7 +294,7 @@ fn display_columns(bytes: &[u8]) -> uint {
     // If we have a Unicode string, then attempt to guess the number of
     // *display* columns used.
     match str::from_utf8(bytes) {
-        None => bytes.len(),
-        Some(s) => s.chars().map(|c| c.width(false).unwrap_or(0)).sum(),
+        Err(_) => bytes.len(),
+        Ok(s) => s.chars().map(|c| c.width(false).unwrap_or(0)).sum(),
     }
 }

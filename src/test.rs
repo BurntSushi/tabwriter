@@ -9,7 +9,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     }
 }
 
-fn readable_str<S: StrAllocating>(s: S) -> String {
+fn readable_str(s: &str) -> String {
     s.replace(" ", "·")
 }
 
