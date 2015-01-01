@@ -73,7 +73,7 @@
 
 use std::cmp;
 use std::io;
-use std::iter::AdditiveIterator;
+use std::iter::{AdditiveIterator, range, repeat};
 use std::mem;
 use std::str;
 
@@ -235,7 +235,8 @@ impl<W: Writer> Writer for TabWriter<W> {
                                   .map(|ws| ws.iter().map(|&w|w).max()
                                               .unwrap_or(0))
                                   .max().unwrap_or(0);
-        let padding = String::from_char(biggest_width + self.padding, ' ');
+        let padding: String =
+            repeat(' ').take(biggest_width + self.padding).collect();
         let padding = padding.as_slice();
 
         let mut first = true;
@@ -266,7 +267,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: uint) -> Vec<Vec<uint>> {
     //
     // However, I claim that it is actually O(nm). That is, the width for
     // every contiguous column is computed exactly once.
-    let mut ws = Vec::from_fn(lines.len(), |_| vec!());
+    let mut ws: Vec<_> = range(0, lines.len()).map(|_| vec![]).collect();
     for (i, iline) in lines.iter().enumerate() {
         if iline.is_empty() {
             continue
