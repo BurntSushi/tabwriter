@@ -1,3 +1,5 @@
+#![feature(old_orphan_check)] // see rustc commit c61a00
+
 extern crate libc;
 extern crate "rustc-serialize" as rustc_serialize;
 extern crate docopt;
