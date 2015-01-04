@@ -95,7 +95,7 @@ pub struct TabWriter<W> {
     padding: uint,
 }
 
-#[deriving(Clone, Show)]
+#[derive(Clone, Show)]
 struct Cell {
     start: uint, // offset into TabWriter.buf
     width: uint, // in characters

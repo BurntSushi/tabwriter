@@ -18,5 +18,8 @@ name = "tabwriter"
 doc = false
 test = false
 
-[dependencies]
-docopt = "*"
+# [dependencies]
+# docopt = "*"
+
+[dependencies.docopt]
+git = "git://github.com/docopt/docopt.rs"
