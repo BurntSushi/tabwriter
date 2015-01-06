@@ -20,7 +20,7 @@ Options:
     --version           Print version info and exit
 ";
 
-#[deriving(RustcDecodable)]
+#[derive(RustcDecodable)]
 struct Args {
     flag_pad: uint,
     flag_width: uint,
