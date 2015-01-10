@@ -11,6 +11,8 @@
 //! Here's an example that shows basic alignment:
 //!
 //! ```rust
+//! #![allow(unstable)]
+//!
 //! use std::io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
@@ -24,7 +26,7 @@
 //! tw.flush().unwrap();
 //!
 //! let written = String::from_utf8(tw.unwrap().into_inner()).unwrap();
-//! assert_eq!(written.as_slice(), "
+//! assert_eq!(&*written, "
 //! Bruce Springsteen  Born to Run
 //! Bob Seger          Night Moves
 //! Metallica          Black
@@ -41,6 +43,8 @@
 //! are aligned:
 //!
 //! ```rust
+//! #![allow(unstable)]
+//!
 //! use std::io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
@@ -59,7 +63,7 @@
 //! tw.flush().unwrap();
 //!
 //! let written = String::from_utf8(tw.unwrap().into_inner()).unwrap();
-//! assert_eq!(written.as_slice(), "
+//! assert_eq!(&*written, "
 //!fn foobar() {
 //!    let mut x = 1+1;       // addition
 //!    x += 1;                // increment in place
@@ -70,6 +74,8 @@
 //!}
 //!");
 //! ```
+
+#![allow(unstable)]
 
 use std::cmp;
 use std::io;
@@ -91,15 +97,15 @@ pub struct TabWriter<W> {
     buf: io::MemWriter,
     lines: Vec<Vec<Cell>>,
     curcell: Cell,
-    minwidth: uint,
-    padding: uint,
+    minwidth: usize,
+    padding: usize,
 }
 
 #[derive(Clone, Show)]
 struct Cell {
-    start: uint, // offset into TabWriter.buf
-    width: uint, // in characters
-    size: uint,  // in bytes
+    start: usize, // offset into TabWriter.buf
+    width: usize, // in characters
+    size: usize,  // in bytes
 }
 
 impl<W: Writer> TabWriter<W> {
@@ -126,7 +132,7 @@ impl<W: Writer> TabWriter<W> {
     /// then it is passed with spaces.
     ///
     /// The default minimum width is `2`.
-    pub fn minwidth(mut self, minwidth: uint) -> TabWriter<W> {
+    pub fn minwidth(mut self, minwidth: usize) -> TabWriter<W> {
         self.minwidth = minwidth;
         self
     }
@@ -137,7 +143,7 @@ impl<W: Writer> TabWriter<W> {
     /// separation.
     ///
     /// The default padding is `2`.
-    pub fn padding(mut self, padding: uint) -> TabWriter<W> {
+    pub fn padding(mut self, padding: usize) -> TabWriter<W> {
         self.padding = padding;
         self
     }
@@ -176,7 +182,7 @@ impl<W: Writer> TabWriter<W> {
     /// Return a view of the current line of cells.
     fn curline(&mut self) -> &[Cell] {
         let i = self.lines.len() - 1;
-        self.lines[i].as_slice()
+        &*self.lines[i]
     }
 
     /// Return a mutable view of the current line of cells.
@@ -187,23 +193,23 @@ impl<W: Writer> TabWriter<W> {
 }
 
 impl Cell {
-    fn new(start: uint) -> Cell {
+    fn new(start: usize) -> Cell {
         Cell { start: start, width: 0, size: 0 }
     }
 
     fn update_width(&mut self, buf: &[u8]) {
         let end = self.start + self.size;
-        self.width = display_columns(buf.slice(self.start, end));
+        self.width = display_columns(&buf[self.start..end]);
     }
 }
 
 impl<W: Writer> Writer for TabWriter<W> {
     fn write(&mut self, buf: &[u8]) -> io::IoResult<()> {
-        let mut lastterm = 0u;
+        let mut lastterm = 0us;
         for (i, &c) in buf.iter().enumerate() {
             match c {
                 b'\t' | b'\n' => {
-                    self.add_bytes(buf.slice(lastterm, i));
+                    self.add_bytes(&buf[lastterm..i]);
                     self.term_curcell();
                     lastterm = i + 1;
                     if c == b'\n' {
@@ -219,7 +225,7 @@ impl<W: Writer> Writer for TabWriter<W> {
                 _ => {}
             }
         }
-        self.add_bytes(buf.slice_from(lastterm));
+        self.add_bytes(&buf[lastterm..]);
         Ok(())
     }
 
@@ -237,21 +243,20 @@ impl<W: Writer> Writer for TabWriter<W> {
                                   .max().unwrap_or(0);
         let padding: String =
             repeat(' ').take(biggest_width + self.padding).collect();
-        let padding = padding.as_slice();
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
             if !first { try!(self.w.write(b"\n")); } else { first = false }
             for (i, cell) in line.iter().enumerate() {
-                let bytes = self.buf.get_ref().slice(cell.start,
-                                                     cell.start + cell.size);
+                let bytes =
+                    &self.buf.get_ref()[cell.start..cell.start + cell.size];
                 try!(self.w.write(bytes));
                 if i >= widths.len() {
                     assert_eq!(i, line.len()-1);
                 } else {
                     assert!(widths[i] >= cell.width);
                     let padsize = self.padding + widths[i] - cell.width;
-                    try!(self.w.write_str(padding.slice_chars(0, padsize)));
+                    try!(self.w.write_str(&padding[0..padsize]));
                 }
             }
         }
@@ -261,7 +266,7 @@ impl<W: Writer> Writer for TabWriter<W> {
     }
 }
 
-fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: uint) -> Vec<Vec<uint>> {
+fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
     // Naively, this algorithm looks like it could be O(n^2m) where `n` is
     // the number of lines and `m` is the number of contiguous columns.
     //
@@ -275,7 +280,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: uint) -> Vec<Vec<uint>> {
         for col in range(ws[i].len(), iline.len()-1) {
             let mut width = minwidth;
             let mut contig_count = 0;
-            for line in lines.slice_from(i).iter() {
+            for line in lines[i..].iter() {
                 if col + 1 >= line.len() { // ignores last column
                     break
                 }
@@ -291,7 +296,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: uint) -> Vec<Vec<uint>> {
     ws
 }
 
-fn display_columns(bytes: &[u8]) -> uint {
+fn display_columns(bytes: &[u8]) -> usize {
     // If we have a Unicode string, then attempt to guess the number of
     // *display* columns used.
     match str::from_utf8(bytes) {

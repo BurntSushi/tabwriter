@@ -1,3 +1,5 @@
+#![allow(unstable)]
+
 extern crate libc;
 extern crate "rustc-serialize" as rustc_serialize;
 extern crate docopt;
@@ -22,8 +24,8 @@ Options:
 
 #[derive(RustcDecodable)]
 struct Args {
-    flag_pad: uint,
-    flag_width: uint,
+    flag_pad: usize,
+    flag_width: usize,
 }
 
 fn main() {
@@ -53,7 +55,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
         Ok(r) => r,
         Err(e) => {
-            io::stderr().write_str(e.to_string().as_slice()).unwrap();
+            io::stderr().write_str(&*e.to_string()).unwrap();
             unsafe { libc::exit(1 as libc::c_int) }
         }
     }
