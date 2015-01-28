@@ -5,7 +5,7 @@ extern crate "rustc-serialize" as rustc_serialize;
 extern crate docopt;
 extern crate tabwriter;
 
-use std::io;
+use std::old_io as io;
 use docopt::Docopt;
 use tabwriter::TabWriter;
 

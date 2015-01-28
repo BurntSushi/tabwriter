@@ -13,7 +13,7 @@
 //! ```rust
 //! #![allow(unstable)]
 //!
-//! use std::io::MemWriter;
+//! use std::old_io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
 //! let mut tw = TabWriter::new(MemWriter::new());
@@ -45,7 +45,7 @@
 //! ```rust
 //! #![allow(unstable)]
 //!
-//! use std::io::MemWriter;
+//! use std::old_io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
 //! let mut tw = TabWriter::new(MemWriter::new())
@@ -78,7 +78,7 @@
 #![allow(unstable)]
 
 use std::cmp;
-use std::io;
+use std::old_io as io;
 use std::iter::{AdditiveIterator, range, repeat};
 use std::mem;
 use std::str;
@@ -166,7 +166,7 @@ impl<W: Writer> TabWriter<W> {
     /// the current cell.
     fn add_bytes(&mut self, bytes: &[u8]) {
         self.curcell.size += bytes.len();
-        let _ = self.buf.write(bytes); // cannot fail
+        let _ = self.buf.write_all(bytes); // cannot fail
     }
 
     /// Ends the current cell, updates the UTF8 width of the cell and starts
@@ -204,7 +204,7 @@ impl Cell {
 }
 
 impl<W: Writer> Writer for TabWriter<W> {
-    fn write(&mut self, buf: &[u8]) -> io::IoResult<()> {
+    fn write_all(&mut self, buf: &[u8]) -> io::IoResult<()> {
         let mut lastterm = 0us;
         for (i, &c) in buf.iter().enumerate() {
             match c {
@@ -246,11 +246,11 @@ impl<W: Writer> Writer for TabWriter<W> {
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
-            if !first { try!(self.w.write(b"\n")); } else { first = false }
+            if !first { try!(self.w.write_all(b"\n")); } else { first = false }
             for (i, cell) in line.iter().enumerate() {
                 let bytes =
                     &self.buf.get_ref()[cell.start..cell.start + cell.size];
-                try!(self.w.write(bytes));
+                try!(self.w.write_all(bytes));
                 if i >= widths.len() {
                     assert_eq!(i, line.len()-1);
                 } else {
