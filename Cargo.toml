@@ -1,6 +1,6 @@
 [package]
 name = "tabwriter"
-version = "0.1.11"  #:version
+version = "0.1.12"  #:version
 authors = ["Andrew Gallant <jamslam@gmail.com>"]
 description = "Elastic tabstops."
 documentation = "http://burntsushi.net/rustdoc/tabwriter/"
