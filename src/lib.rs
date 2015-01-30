@@ -11,8 +11,6 @@
 //! Here's an example that shows basic alignment:
 //!
 //! ```rust
-//! #![allow(unstable)]
-//!
 //! use std::old_io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
@@ -43,8 +41,6 @@
 //! are aligned:
 //!
 //! ```rust
-//! #![allow(unstable)]
-//!
 //! use std::old_io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
@@ -75,7 +71,7 @@
 //!");
 //! ```
 
-#![allow(unstable)]
+#![feature(core, io, unicode)]
 
 use std::cmp;
 use std::old_io as io;
@@ -101,7 +97,7 @@ pub struct TabWriter<W> {
     padding: usize,
 }
 
-#[derive(Clone, Show)]
+#[derive(Debug)]
 struct Cell {
     start: usize, // offset into TabWriter.buf
     width: usize, // in characters
