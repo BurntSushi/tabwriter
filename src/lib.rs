@@ -11,10 +11,9 @@
 //! Here's an example that shows basic alignment:
 //!
 //! ```rust
-//! use std::old_io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
-//! let mut tw = TabWriter::new(MemWriter::new());
+//! let mut tw = TabWriter::new(Vec::new());
 //! tw.write_str("
 //! Bruce Springsteen\tBorn to Run
 //! Bob Seger\tNight Moves
@@ -23,7 +22,7 @@
 //! ").unwrap();
 //! tw.flush().unwrap();
 //!
-//! let written = String::from_utf8(tw.unwrap().into_inner()).unwrap();
+//! let written = String::from_utf8(tw.unwrap()).unwrap();
 //! assert_eq!(&*written, "
 //! Bruce Springsteen  Born to Run
 //! Bob Seger          Night Moves
@@ -41,11 +40,9 @@
 //! are aligned:
 //!
 //! ```rust
-//! use std::old_io::MemWriter;
 //! use tabwriter::TabWriter;
 //!
-//! let mut tw = TabWriter::new(MemWriter::new())
-//!                        .padding(1);
+//! let mut tw = TabWriter::new(Vec::new()).padding(1);
 //! tw.write_str("
 //!fn foobar() {
 //!    let mut x = 1+1;\t// addition
@@ -58,7 +55,7 @@
 //!").unwrap();
 //! tw.flush().unwrap();
 //!
-//! let written = String::from_utf8(tw.unwrap().into_inner()).unwrap();
+//! let written = String::from_utf8(tw.unwrap()).unwrap();
 //! assert_eq!(&*written, "
 //!fn foobar() {
 //!    let mut x = 1+1;       // addition
@@ -71,7 +68,7 @@
 //!");
 //! ```
 
-#![feature(core, io, unicode)]
+#![feature(core, old_io, unicode)]
 
 use std::cmp;
 use std::old_io as io;
@@ -90,7 +87,7 @@ mod test;
 /// Otherwise, output will stay buffered until `flush` is explicitly called.
 pub struct TabWriter<W> {
     w: W,
-    buf: io::MemWriter,
+    buf: Vec<u8>,
     lines: Vec<Vec<Cell>>,
     curcell: Cell,
     minwidth: usize,
@@ -115,7 +112,7 @@ impl<W: Writer> TabWriter<W> {
     pub fn new(w: W) -> TabWriter<W> {
         TabWriter {
             w: w,
-            buf: io::MemWriter::with_capacity(1024),
+            buf: Vec::with_capacity(1024),
             lines: vec!(vec!()),
             curcell: Cell::new(0),
             minwidth: 2,
@@ -153,7 +150,7 @@ impl<W: Writer> TabWriter<W> {
     /// Resets the state of the aligner. Once the aligner is reset, all future
     /// writes will start producing a new alignment.
     fn reset(&mut self) {
-        self.buf = io::MemWriter::with_capacity(1024);
+        self.buf = Vec::with_capacity(1024);
         self.lines = vec!(vec!());
         self.curcell = Cell::new(0);
     }
@@ -168,10 +165,10 @@ impl<W: Writer> TabWriter<W> {
     /// Ends the current cell, updates the UTF8 width of the cell and starts
     /// a fresh cell.
     fn term_curcell(&mut self) {
-        let mut curcell = Cell::new(self.buf.get_ref().len());
+        let mut curcell = Cell::new(self.buf.len());
         mem::swap(&mut self.curcell, &mut curcell);
 
-        curcell.update_width(self.buf.get_ref());
+        curcell.update_width(&self.buf);
         self.curline_mut().push(curcell);
     }
 
@@ -201,7 +198,7 @@ impl Cell {
 
 impl<W: Writer> Writer for TabWriter<W> {
     fn write_all(&mut self, buf: &[u8]) -> io::IoResult<()> {
-        let mut lastterm = 0us;
+        let mut lastterm = 0usize;
         for (i, &c) in buf.iter().enumerate() {
             match c {
                 b'\t' | b'\n' => {
@@ -244,8 +241,7 @@ impl<W: Writer> Writer for TabWriter<W> {
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
             if !first { try!(self.w.write_all(b"\n")); } else { first = false }
             for (i, cell) in line.iter().enumerate() {
-                let bytes =
-                    &self.buf.get_ref()[cell.start..cell.start + cell.size];
+                let bytes = &self.buf[cell.start..cell.start + cell.size];
                 try!(self.w.write_all(bytes));
                 if i >= widths.len() {
                     assert_eq!(i, line.len()-1);

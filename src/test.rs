@@ -1,5 +1,3 @@
-use std::old_io as io;
-
 use TabWriter;
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
@@ -13,17 +11,17 @@ fn readable_str(s: &str) -> String {
     s.replace(" ", "·")
 }
 
-fn tabw() -> TabWriter<io::MemWriter> {
-    TabWriter::new(io::MemWriter::new())
+fn tabw() -> TabWriter<Vec<u8>> {
+    TabWriter::new(Vec::new())
 }
 
-fn tabify(mut tw: TabWriter<io::MemWriter>, s: &str) -> String {
+fn tabify(mut tw: TabWriter<Vec<u8>>, s: &str) -> String {
     ordie(tw.write_str(s));
     ordie(tw.flush());
-    ordie(String::from_utf8(tw.unwrap().into_inner()))
+    ordie(String::from_utf8(tw.unwrap()))
 }
 
-fn iseq(tw: TabWriter<io::MemWriter>, s: &str, expected: &str) {
+fn iseq(tw: TabWriter<Vec<u8>>, s: &str, expected: &str) {
     let written = tabify(tw, s);
     let got = written.as_slice();
     if expected != got {
