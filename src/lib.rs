@@ -72,7 +72,7 @@
 
 use std::cmp;
 use std::old_io as io;
-use std::iter::{AdditiveIterator, range, repeat};
+use std::iter::{AdditiveIterator, repeat};
 use std::mem;
 use std::str;
 
@@ -264,12 +264,12 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
     //
     // However, I claim that it is actually O(nm). That is, the width for
     // every contiguous column is computed exactly once.
-    let mut ws: Vec<_> = range(0, lines.len()).map(|_| vec![]).collect();
+    let mut ws: Vec<_> = (0..lines.len()).map(|_| vec![]).collect();
     for (i, iline) in lines.iter().enumerate() {
         if iline.is_empty() {
             continue
         }
-        for col in range(ws[i].len(), iline.len()-1) {
+        for col in ws[i].len()..(iline.len()-1) {
             let mut width = minwidth;
             let mut contig_count = 0;
             for line in lines[i..].iter() {
@@ -280,7 +280,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
                 width = cmp::max(width, line[col].width);
             }
             assert!(contig_count >= 1);
-            for j in range(i, i+contig_count) {
+            for j in i..(i+contig_count) {
                 ws[j].push(width);
             }
         }
