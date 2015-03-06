@@ -1,11 +1,11 @@
-#![feature(libc, old_io)]
+#![feature(io)]
 
 extern crate libc;
 extern crate "rustc-serialize" as rustc_serialize;
 extern crate docopt;
 extern crate tabwriter;
 
-use std::old_io as io;
+use std::io::{self, Write};
 use docopt::Docopt;
 use tabwriter::TabWriter;
 
@@ -35,7 +35,7 @@ fn main() {
     let mut tw = TabWriter::new(io::stdout())
                            .minwidth(args.flag_width)
                            .padding(args.flag_pad);
-    ordie(io::util::copy(&mut io::stdin(), &mut tw));
+    ordie(io::copy(&mut io::stdin(), &mut tw));
     ordie(tw.flush());
 }
 
@@ -55,7 +55,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
         Ok(r) => r,
         Err(e) => {
-            io::stderr().write_str(&*e.to_string()).unwrap();
+            let _ = write!(&mut io::stderr(), "{}", e.to_string());
             unsafe { libc::exit(1 as libc::c_int) }
         }
     }

@@ -11,10 +11,11 @@
 //! Here's an example that shows basic alignment:
 //!
 //! ```rust
+//! use std::io::Write;
 //! use tabwriter::TabWriter;
 //!
 //! let mut tw = TabWriter::new(Vec::new());
-//! tw.write_str("
+//! write!(&mut tw, "
 //! Bruce Springsteen\tBorn to Run
 //! Bob Seger\tNight Moves
 //! Metallica\tBlack
@@ -40,18 +41,19 @@
 //! are aligned:
 //!
 //! ```rust
+//! use std::io::Write;
 //! use tabwriter::TabWriter;
 //!
 //! let mut tw = TabWriter::new(Vec::new()).padding(1);
-//! tw.write_str("
-//!fn foobar() {
+//! write!(&mut tw, "
+//!fn foobar() {{
 //!    let mut x = 1+1;\t// addition
 //!    x += 1;\t// increment in place
 //!    let y = x * x * x * x;\t// multiply!
 //!
 //!    y += 1;\t// this is another group
 //!    y += 2 * 2;\t// that is separately aligned
-//!}
+//!}}
 //!").unwrap();
 //! tw.flush().unwrap();
 //!
@@ -68,10 +70,10 @@
 //!");
 //! ```
 
-#![feature(core, old_io, unicode)]
+#![feature(core, io, unicode)]
 
 use std::cmp;
-use std::old_io as io;
+use std::io::{self, Write};
 use std::iter::{AdditiveIterator, repeat};
 use std::mem;
 use std::str;
@@ -87,7 +89,7 @@ mod test;
 /// Otherwise, output will stay buffered until `flush` is explicitly called.
 pub struct TabWriter<W> {
     w: W,
-    buf: Vec<u8>,
+    buf: io::Cursor<Vec<u8>>,
     lines: Vec<Vec<Cell>>,
     curcell: Cell,
     minwidth: usize,
@@ -101,7 +103,7 @@ struct Cell {
     size: usize,  // in bytes
 }
 
-impl<W: Writer> TabWriter<W> {
+impl<W: io::Write> TabWriter<W> {
     /// Create a new `TabWriter` from an existing `Writer`.
     ///
     /// All output written to `Writer` is passed through `TabWriter`.
@@ -112,7 +114,7 @@ impl<W: Writer> TabWriter<W> {
     pub fn new(w: W) -> TabWriter<W> {
         TabWriter {
             w: w,
-            buf: Vec::with_capacity(1024),
+            buf: io::Cursor::new(Vec::with_capacity(1024)),
             lines: vec!(vec!()),
             curcell: Cell::new(0),
             minwidth: 2,
@@ -150,7 +152,7 @@ impl<W: Writer> TabWriter<W> {
     /// Resets the state of the aligner. Once the aligner is reset, all future
     /// writes will start producing a new alignment.
     fn reset(&mut self) {
-        self.buf = Vec::with_capacity(1024);
+        self.buf = io::Cursor::new(Vec::with_capacity(1024));
         self.lines = vec!(vec!());
         self.curcell = Cell::new(0);
     }
@@ -165,10 +167,10 @@ impl<W: Writer> TabWriter<W> {
     /// Ends the current cell, updates the UTF8 width of the cell and starts
     /// a fresh cell.
     fn term_curcell(&mut self) {
-        let mut curcell = Cell::new(self.buf.len());
+        let mut curcell = Cell::new(self.buf.position() as usize);
         mem::swap(&mut self.curcell, &mut curcell);
 
-        curcell.update_width(&self.buf);
+        curcell.update_width(&self.buf.get_ref());
         self.curline_mut().push(curcell);
     }
 
@@ -196,8 +198,8 @@ impl Cell {
     }
 }
 
-impl<W: Writer> Writer for TabWriter<W> {
-    fn write_all(&mut self, buf: &[u8]) -> io::IoResult<()> {
+impl<W: io::Write> io::Write for TabWriter<W> {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         let mut lastterm = 0usize;
         for (i, &c) in buf.iter().enumerate() {
             match c {
@@ -219,10 +221,10 @@ impl<W: Writer> Writer for TabWriter<W> {
             }
         }
         self.add_bytes(&buf[lastterm..]);
-        Ok(())
+        Ok(buf.len())
     }
 
-    fn flush(&mut self) -> io::IoResult<()> {
+    fn flush(&mut self) -> io::Result<()> {
         if self.curcell.size > 0 {
             self.term_curcell();
         }
@@ -241,14 +243,14 @@ impl<W: Writer> Writer for TabWriter<W> {
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
             if !first { try!(self.w.write_all(b"\n")); } else { first = false }
             for (i, cell) in line.iter().enumerate() {
-                let bytes = &self.buf[cell.start..cell.start + cell.size];
+                let bytes = &self.buf.get_ref()[cell.start..cell.start + cell.size];
                 try!(self.w.write_all(bytes));
                 if i >= widths.len() {
                     assert_eq!(i, line.len()-1);
                 } else {
                     assert!(widths[i] >= cell.width);
                     let padsize = self.padding + widths[i] - cell.width;
-                    try!(self.w.write_str(&padding[0..padsize]));
+                    try!(write!(&mut self.w, "{}", &padding[0..padsize]));
                 }
             }
         }

@@ -1,3 +1,4 @@
+use std::io::Write;
 use TabWriter;
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
@@ -16,7 +17,7 @@ fn tabw() -> TabWriter<Vec<u8>> {
 }
 
 fn tabify(mut tw: TabWriter<Vec<u8>>, s: &str) -> String {
-    ordie(tw.write_str(s));
+    ordie(write!(&mut tw, "{}", s));
     ordie(tw.flush());
     ordie(String::from_utf8(tw.unwrap()))
 }
