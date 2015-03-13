@@ -1,13 +1,15 @@
-#![feature(io)]
+#![feature(core, io, unicode)]
 
 extern crate libc;
 extern crate "rustc-serialize" as rustc_serialize;
 extern crate docopt;
-extern crate tabwriter;
 
 use std::io::{self, Write};
 use docopt::Docopt;
 use tabwriter::TabWriter;
+
+#[allow(dead_code)]
+mod tabwriter;
 
 static USAGE: &'static str = "
 Usage:
