@@ -1,6 +1,6 @@
 use std::cmp;
 use std::io::{self, Write};
-use std::iter::{AdditiveIterator, repeat};
+use std::iter;
 use std::mem;
 use std::str;
 
@@ -160,7 +160,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                                               .unwrap_or(0))
                                   .max().unwrap_or(0);
         let padding: String =
-            repeat(' ').take(biggest_width + self.padding).collect();
+            iter::repeat(' ').take(biggest_width + self.padding).collect();
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
@@ -218,6 +218,8 @@ fn display_columns(bytes: &[u8]) -> usize {
     // *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
-        Ok(s) => s.chars().map(|c| c.width(false).unwrap_or(0)).sum(),
+        Ok(s) => s.chars()
+                  .map(|c| c.width(false).unwrap_or(0))
+                  .fold(0, |sum, width| sum + width),
     }
 }
