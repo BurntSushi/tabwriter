@@ -152,8 +152,8 @@ fn test_ansi_formatting() {
                          Cyan.paint("foobar"),
                          Blue.paint("foo\tbar\tfoobar\n"));
     iseq(tabw(), 
-    &output[..],
-    "foo  bar  foobar\n\
-    \u{1b}[31mfoo\u{1b}[0m  \u{1b}[32mbar\u{1b}[0m  \u{1b}[36mfoobar\u{1b}[0m\n\
-    \u{1b}[34mfoo  bar  foobar\n\u{1b}[0m")
+         &output[..],
+         "foo  bar  foobar\n\
+         \u{1b}[31mfoo\u{1b}[0m  \u{1b}[32mbar\u{1b}[0m  \u{1b}[36mfoobar\u{1b}[0m\n\
+         \u{1b}[34mfoo  bar  foobar\n\u{1b}[0m")
 }
