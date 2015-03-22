@@ -1,5 +1,8 @@
+extern crate ansi_term;
+
 use std::io::Write;
 use TabWriter;
+use self::ansi_term::Colour::{Red, Cyan, Green, Blue};
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
@@ -139,4 +142,18 @@ fn foobar() {
     y += 2 * 2; // that is separately aligned
 }
 ");
+}
+
+#[test]
+fn test_ansi_formatting() {
+    let output = format!("foo\tbar\tfoobar\n{}\t{}\t{}\n{}",
+                         Red.paint("foo"),
+                         Green.paint("bar"),
+                         Cyan.paint("foobar"),
+                         Blue.paint("foo\tbar\tfoobar\n"));
+    iseq(tabw(), 
+    &output[..],
+    "foo  bar  foobar\n\
+    \u{1b}[31mfoo\u{1b}[0m  \u{1b}[32mbar\u{1b}[0m  \u{1b}[36mfoobar\u{1b}[0m\n\
+    \u{1b}[34mfoo  bar  foobar\n\u{1b}[0m")
 }

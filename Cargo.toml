@@ -22,3 +22,7 @@ test = false
 docopt = "*"
 libc = "*"
 rustc-serialize = "*"
+regex = "*"
+
+[dev-dependencies]
+ansi_term = "*"
