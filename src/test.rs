@@ -24,13 +24,9 @@ fn tabify(mut tw: TabWriter<Vec<u8>>, s: &str) -> String {
 
 fn iseq(tw: TabWriter<Vec<u8>>, s: &str, expected: &str) {
     let written = tabify(tw, s);
-    let got = written.as_slice();
-    if expected != got {
-        let expected = readable_str(expected);
-        let got = readable_str(got);
-        // panic!("expected = '{}' != '{}' = got", expected, got);
+    if expected != written {
         panic!("\n\nexpected:\n-----\n{}\n-----\ngot:\n-----\n{}\n-----\n\n",
-               expected, got);
+               readable_str(expected), readable_str(&written));
     }
 }
 
