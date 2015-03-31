@@ -1,8 +1,8 @@
 #![feature(unicode)]
 
 extern crate libc;
-extern crate "rustc-serialize" as rustc_serialize;
 extern crate docopt;
+extern crate rustc_serialize;
 
 use std::io::{self, Write};
 use docopt::Docopt;
