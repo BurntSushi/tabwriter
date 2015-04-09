@@ -2,7 +2,7 @@ extern crate regex;
 
 use std::cmp;
 use std::io::{self, Write};
-use std::iter::{AdditiveIterator, repeat};
+use std::iter::repeat;
 use std::mem;
 use std::str;
 use self::regex::Regex;

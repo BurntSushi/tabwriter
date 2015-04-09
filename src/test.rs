@@ -27,7 +27,7 @@ fn tabify(mut tw: TabWriter<Vec<u8>>, s: &str) -> String {
 
 fn iseq(tw: TabWriter<Vec<u8>>, s: &str, expected: &str) {
     let written = tabify(tw, s);
-    let got = written.as_slice();
+    let got = written.as_ref();
     if expected != got {
         let expected = readable_str(expected);
         let got = readable_str(got);

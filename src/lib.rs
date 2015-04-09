@@ -70,7 +70,7 @@
 //!");
 //! ```
 
-#![feature(core, io, unicode)]
+#![feature(core, unicode)]
 
 pub use tabwriter::TabWriter;
 
