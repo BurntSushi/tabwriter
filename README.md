@@ -1,11 +1,11 @@
 tabwriter is a crate that implements
-[elastic tabstops](http://nickgravgaard.com/elastictabstops/index.html). It 
-provides both a library for wrapping Rust `Writer`s and a small program that 
+[elastic tabstops](http://nickgravgaard.com/elastictabstops/index.html). It
+provides both a library for wrapping Rust `Writer`s and a small program that
 exposes the same functionality at the command line.
 
 [![Build status](https://api.travis-ci.org/BurntSushi/tabwriter.png)](https://travis-ci.org/BurntSushi/tabwriter)
 
-Licensed under the [UNLICENSE](http://unlicense.org).
+Dual-licensed under MIT or the [UNLICENSE](http://unlicense.org).
 
 
 ### Simple example of library
@@ -66,7 +66,7 @@ The API is fully documented with some examples:
 ### Installation
 
 This crate works with Cargo. Assuming you have Rust and
-[Cargo](http://crates.io/) installed, simply check out the source and run 
+[Cargo](http://crates.io/) installed, simply check out the source and run
 tests:
 
 ```bash
