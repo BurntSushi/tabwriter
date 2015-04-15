@@ -20,5 +20,4 @@ test = false
 
 [dependencies]
 docopt = "*"
-libc = "*"
 rustc-serialize = "*"
