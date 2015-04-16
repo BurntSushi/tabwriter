@@ -4,6 +4,7 @@ provides both a library for wrapping Rust `Writer`s and a small program that
 exposes the same functionality at the command line.
 
 [![Build status](https://api.travis-ci.org/BurntSushi/tabwriter.png)](https://travis-ci.org/BurntSushi/tabwriter)
+[![](http://meritbadge.herokuapp.com/tabwriter)](https://crates.io/crates/tabwriter)
 
 Dual-licensed under MIT or the [UNLICENSE](http://unlicense.org).
 
