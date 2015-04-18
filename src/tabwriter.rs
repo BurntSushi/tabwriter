@@ -1,4 +1,5 @@
 extern crate regex;
+extern crate unicode_width;
 
 use std::cmp;
 use std::io::{self, Write};
@@ -6,6 +7,8 @@ use std::iter::repeat;
 use std::mem;
 use std::str;
 use self::regex::Regex;
+use self::unicode_width::UnicodeWidthStr;
+
 
 /// TabWriter wraps an arbitrary writer and aligns tabbed output.
 ///
@@ -218,7 +221,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
 
 fn strip_formatting(input: &str) -> String {
     let re = Regex::new("\x1B\\[.+?m").unwrap();
-    re.replace_all(input, "").to_string()
+    re.replace_all(input, "")
 }
 
 fn display_columns(bytes: &[u8]) -> usize {
@@ -226,6 +229,9 @@ fn display_columns(bytes: &[u8]) -> usize {
     // to *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
-        Ok(s) => strip_formatting(s).chars().map(|c| c.width(false).unwrap_or(0)).sum(),
+        Ok(s) => {
+            let stripped_str = strip_formatting(&s);
+            UnicodeWidthStr::width(&stripped_str[..])
+        }
     }
 }

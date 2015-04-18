@@ -23,6 +23,7 @@ docopt = "*"
 libc = "*"
 rustc-serialize = "*"
 regex = "*"
+unicode-width = "*"
 
 [dev-dependencies]
 ansi_term = "*"

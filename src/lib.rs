@@ -70,8 +70,6 @@
 //!");
 //! ```
 
-#![feature(core, unicode)]
-
 pub use tabwriter::TabWriter;
 
 mod tabwriter;
