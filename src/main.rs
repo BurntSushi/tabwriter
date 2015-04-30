@@ -1,5 +1,4 @@
 
-extern crate libc;
 extern crate rustc_serialize;
 extern crate docopt;
 
@@ -57,7 +56,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
         Ok(r) => r,
         Err(e) => {
             let _ = write!(&mut io::stderr(), "{}", e.to_string());
-            unsafe { libc::exit(1 as libc::c_int) }
+            ::std::process::exit(1);
         }
     }
 }
