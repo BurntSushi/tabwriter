@@ -1,7 +1,6 @@
-#![feature(unicode)]
-
 extern crate docopt;
 extern crate rustc_serialize;
+extern crate unicode_width;
 
 use std::io::{self, Write};
 use docopt::Docopt;

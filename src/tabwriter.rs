@@ -214,12 +214,14 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
 }
 
 fn display_columns(bytes: &[u8]) -> usize {
+    use unicode_width::UnicodeWidthChar;
+
     // If we have a Unicode string, then attempt to guess the number of
     // *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
         Ok(s) => s.chars()
-                  .map(|c| c.width(false).unwrap_or(0))
+                  .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
                   .fold(0, |sum, width| sum + width),
     }
 }

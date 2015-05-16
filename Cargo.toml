@@ -21,3 +21,4 @@ test = false
 [dependencies]
 docopt = "*"
 rustc-serialize = "*"
+unicode-width = "*"

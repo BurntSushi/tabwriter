@@ -70,7 +70,7 @@
 //!");
 //! ```
 
-#![feature(unicode)]
+extern crate unicode_width;
 
 pub use tabwriter::TabWriter;
 
