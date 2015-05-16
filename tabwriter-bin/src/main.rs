@@ -1,13 +1,10 @@
 extern crate docopt;
 extern crate rustc_serialize;
-extern crate unicode_width;
+extern crate tabwriter;
 
 use std::io::{self, Write};
 use docopt::Docopt;
 use tabwriter::TabWriter;
-
-#[allow(dead_code)]
-mod tabwriter;
 
 static USAGE: &'static str = "
 Usage:
