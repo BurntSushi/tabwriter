@@ -11,4 +11,4 @@ keywords = ["tabs", "elastic", "aligned", "whitespace", "table"]
 license = "Unlicense/MIT"
 
 [dependencies]
-unicode-width = "*"
+unicode-width = "0.1"

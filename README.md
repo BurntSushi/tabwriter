@@ -79,6 +79,6 @@ cargo test
 You can also add `tabwriter` as a dependency to your project's `Cargo.toml`:
 
 ```toml
-[dependencies.tabwriter]
-git = "git://github.com/BurntSushi/tabwriter"
+[dependencies]
+tabwriter = "0.1"
 ```
