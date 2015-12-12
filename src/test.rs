@@ -1,5 +1,10 @@
 use std::io::Write;
 use TabWriter;
+#[cfg(feature = "ansi_formatting")]
+extern crate ansi_term;
+#[cfg(feature = "ansi_formatting")]
+use self::ansi_term::Colour::{Red, Cyan, Green, Blue};
+
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
@@ -135,4 +140,21 @@ fn foobar() {
     y += 2 * 2; // that is separately aligned
 }
 ");
+}
+
+#[test]
+#[cfg(feature = "ansi_formatting")]
+fn test_ansi_formatting() {
+
+    let output = format!("foo\tbar\tfoobar\n{}\t{}\t{}\n{}",
+                         Red.paint("föÅ"),
+                         Green.paint("bär"),
+                         Cyan.paint("foobar"),
+                         Blue.paint("foo\tbar\tfoobar\n"));
+
+    iseq(tabw(),
+         &output[..],
+         "foo  bar  foobar\n\
+         \x1b[31mföÅ\x1b[0m  \x1b[32mbär\x1b[0m  \x1b[36mfoobar\x1b[0m\n\
+         \x1b[34mfoo  bar  foobar\n\x1b[0m")
 }

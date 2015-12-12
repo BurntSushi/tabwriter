@@ -71,6 +71,7 @@
 //! ```
 
 extern crate unicode_width;
+#[cfg(feature = "ansi_formatting")] extern crate regex;
 
 use std::cmp;
 use std::io::{self, Write};
@@ -289,6 +290,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
     ws
 }
 
+#[cfg(not(feature = "ansi_formatting"))]
 fn display_columns(bytes: &[u8]) -> usize {
     use unicode_width::UnicodeWidthChar;
 
@@ -300,4 +302,24 @@ fn display_columns(bytes: &[u8]) -> usize {
                   .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
                   .fold(0, |sum, width| sum + width),
     }
+}
+
+#[cfg(feature = "ansi_formatting")]
+fn display_columns(bytes: &[u8]) -> usize {
+    use unicode_width::UnicodeWidthChar;
+
+    // If we have a Unicode string, then attempt to guess the number of
+    // *display* columns used.
+    match str::from_utf8(bytes) {
+        Err(_) => bytes.len(),
+        Ok(s) => strip_formatting(s).chars()
+                  .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
+                  .fold(0, |sum, width| sum + width),
+    }
+}
+
+#[cfg(feature = "ansi_formatting")]
+fn strip_formatting(input: &str) -> String {
+    let re = regex::Regex::new("\x1B\\[.+?m").unwrap();
+    re.replace_all(input, "")
 }
