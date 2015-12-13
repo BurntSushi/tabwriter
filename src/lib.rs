@@ -312,14 +312,27 @@ fn display_columns(bytes: &[u8]) -> usize {
     // *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
-        Ok(s) => strip_formatting(s).chars()
-                  .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-                  .fold(0, |sum, width| sum + width),
+        Ok(s) => {
+            if let Some(stripped_s) = strip_formatting(s) {
+                stripped_s.chars()
+                    .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
+                    .fold(0, |sum, width| sum + width)
+            } else {
+                s.chars()
+                    .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
+                    .fold(0, |sum, width| sum + width)
+            }
+        }
     }
 }
 
 #[cfg(feature = "ansi_formatting")]
-fn strip_formatting(input: &str) -> String {
-    let re = regex::Regex::new("\x1B\\[.+?m").unwrap();
-    re.replace_all(input, "")
+fn strip_formatting(input: &str) -> Option<String> {
+    // check if the input actually contains ANSI escape codes
+    // to avoid unnecessary allocations
+    if input.contains("\x1b[") {
+        let re = regex::Regex::new("\x1B\\[.+?m").unwrap();
+        return Some(re.replace_all(input, ""));
+    }
+    None
 }
