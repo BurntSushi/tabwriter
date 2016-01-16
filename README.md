@@ -82,3 +82,9 @@ You can also add `tabwriter` as a dependency to your project's `Cargo.toml`:
 [dependencies]
 tabwriter = "0.1"
 ```
+
+
+### Dealing with ANSI escape codes
+
+If you want `tabwriter` to be aware of ANSI escape codes, then compile it with
+the `ansi_formatting` feature enabled.
