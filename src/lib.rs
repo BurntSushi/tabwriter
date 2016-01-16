@@ -72,12 +72,14 @@
 
 extern crate unicode_width;
 #[cfg(feature = "ansi_formatting")] extern crate regex;
+#[cfg(feature = "ansi_formatting")] #[macro_use] extern crate lazy_static;
 
 use std::cmp;
 use std::io::{self, Write};
 use std::iter;
 use std::mem;
 use std::str;
+#[cfg(feature = "ansi_formatting")] use regex::Regex;
 
 #[cfg(test)] mod test;
 
@@ -328,11 +330,16 @@ fn display_columns(bytes: &[u8]) -> usize {
 
 #[cfg(feature = "ansi_formatting")]
 fn strip_formatting(input: &str) -> Option<String> {
+    // use lazy_static to avoid compiling the regex every time
+    // this function is called
+    lazy_static! {
+        static ref RE: regex::Regex = Regex::new("\x1B\\[.+?m").unwrap();
+    }
     // check if the input actually contains ANSI escape codes
     // to avoid unnecessary allocations
     if input.contains("\x1b[") {
-        let re = regex::Regex::new("\x1B\\[.+?m").unwrap();
-        return Some(re.replace_all(input, ""));
+        return Some(RE.replace_all(input, ""));
     }
     None
 }
+
