@@ -296,7 +296,7 @@ impl<W> IntoInnerError<W> {
     }
 }
 
-impl<W: Send + fmt::Debug> fmt::Debug for IntoInnerError<W> {
+impl<W> fmt::Debug for IntoInnerError<W> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.error().fmt(f)
     }
@@ -308,7 +308,7 @@ impl<W> fmt::Display for IntoInnerError<W> {
     }
 }
 
-impl<W: Send + fmt::Debug> error::Error for IntoInnerError<W> {
+impl<W: ::std::any::Any> error::Error for IntoInnerError<W> {
     fn description(&self) -> &str {
         self.error().description()
     }
