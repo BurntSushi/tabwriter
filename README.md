@@ -80,7 +80,7 @@ You can also add `tabwriter` as a dependency to your project's `Cargo.toml`:
 
 ```toml
 [dependencies]
-tabwriter = "0.1"
+tabwriter = "1"
 ```
 
 

@@ -24,7 +24,7 @@ fn tabw() -> TabWriter<Vec<u8>> {
 fn tabify(mut tw: TabWriter<Vec<u8>>, s: &str) -> String {
     ordie(write!(&mut tw, "{}", s));
     ordie(tw.flush());
-    ordie(String::from_utf8(tw.unwrap()))
+    ordie(String::from_utf8(tw.into_inner().unwrap()))
 }
 
 fn iseq(tw: TabWriter<Vec<u8>>, s: &str, expected: &str) {

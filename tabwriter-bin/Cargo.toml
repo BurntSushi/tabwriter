@@ -3,7 +3,7 @@ name = "tabwriter-bin"
 version = "0.1.0"  #:version
 authors = ["Andrew Gallant <jamslam@gmail.com>"]
 description = "Command line tool for elastic tabstops."
-documentation = "http://burntsushi.net/rustdoc/tabwriter/"
+documentation = "https://docs.rs/tabwriter"
 homepage = "https://github.com/BurntSushi/tabwriter"
 repository = "https://github.com/BurntSushi/tabwriter"
 readme = "README.md"
@@ -17,9 +17,9 @@ doc = false
 test = false
 
 [dependencies]
-docopt = "*"
-rustc-serialize = "*"
+docopt = "0.6"
+rustc-serialize = "0.3"
 
 [dependencies.tabwriter]
 path = ".."
-version = "*"
+version = "0.1"

@@ -14,7 +14,7 @@
 //! use std::io::Write;
 //! use tabwriter::TabWriter;
 //!
-//! let mut tw = TabWriter::new(Vec::new());
+//! let mut tw = TabWriter::new(vec![]);
 //! write!(&mut tw, "
 //! Bruce Springsteen\tBorn to Run
 //! Bob Seger\tNight Moves
@@ -23,7 +23,7 @@
 //! ").unwrap();
 //! tw.flush().unwrap();
 //!
-//! let written = String::from_utf8(tw.unwrap()).unwrap();
+//! let written = String::from_utf8(tw.into_inner().unwrap()).unwrap();
 //! assert_eq!(&*written, "
 //! Bruce Springsteen  Born to Run
 //! Bob Seger          Night Moves
@@ -44,7 +44,7 @@
 //! use std::io::Write;
 //! use tabwriter::TabWriter;
 //!
-//! let mut tw = TabWriter::new(Vec::new()).padding(1);
+//! let mut tw = TabWriter::new(vec![]).padding(1);
 //! write!(&mut tw, "
 //!fn foobar() {{
 //!    let mut x = 1+1;\t// addition
@@ -57,7 +57,7 @@
 //!").unwrap();
 //! tw.flush().unwrap();
 //!
-//! let written = String::from_utf8(tw.unwrap()).unwrap();
+//! let written = String::from_utf8(tw.into_inner().unwrap()).unwrap();
 //! assert_eq!(&*written, "
 //!fn foobar() {
 //!    let mut x = 1+1;       // addition
@@ -70,18 +70,28 @@
 //!");
 //! ```
 
+#![deny(missing_docs)]
+
+#[cfg(feature = "ansi_formatting")]
+#[macro_use]
+extern crate lazy_static;
+#[cfg(feature = "ansi_formatting")]
+extern crate regex;
 extern crate unicode_width;
-#[cfg(feature = "ansi_formatting")] extern crate regex;
-#[cfg(feature = "ansi_formatting")] #[macro_use] extern crate lazy_static;
 
 use std::cmp;
+use std::error;
+use std::fmt;
 use std::io::{self, Write};
 use std::iter;
 use std::mem;
 use std::str;
-#[cfg(feature = "ansi_formatting")] use regex::Regex;
 
-#[cfg(test)] mod test;
+#[cfg(feature = "ansi_formatting")]
+use regex::Regex;
+
+#[cfg(test)]
+mod test;
 
 /// TabWriter wraps an arbitrary writer and aligns tabbed output.
 ///
@@ -89,6 +99,7 @@ use std::str;
 /// known as *column blocks*. When a line appears that breaks all contiguous
 /// blocks, all buffered output will be flushed to the underlying writer.
 /// Otherwise, output will stay buffered until `flush` is explicitly called.
+#[derive(Debug)]
 pub struct TabWriter<W> {
     w: W,
     buf: io::Cursor<Vec<u8>>,
@@ -145,10 +156,15 @@ impl<W: io::Write> TabWriter<W> {
         self
     }
 
-    /// Returns the underlying writer. Note that `flush` must be called before
-    /// unwrapping or else data will likely be lost.
-    pub fn unwrap(self) -> W {
-        self.w
+    /// Unwraps this `TabWriter`, returning the underlying writer.
+    ///
+    /// This internal buffer is flushed before returning the writer. If the
+    /// flush fails, then an error is returned.
+    pub fn into_inner(mut self) -> Result<W, IntoInnerError<TabWriter<W>>> {
+        match self.flush() {
+            Ok(()) => Ok(self.w),
+            Err(err) => Err(IntoInnerError(self, err)),
+        }
     }
 
     /// Resets the state of the aligner. Once the aligner is reset, all future
@@ -259,6 +275,46 @@ impl<W: io::Write> io::Write for TabWriter<W> {
 
         self.reset();
         Ok(())
+    }
+}
+
+/// An error returned by `into_inner`.
+///
+/// This combines the error that happened while flushing the buffer with the
+/// `TabWriter` itself.
+pub struct IntoInnerError<W>(W, io::Error);
+
+impl<W> IntoInnerError<W> {
+    /// Returns the error which caused the `into_error()` call to fail.
+    pub fn error(&self) -> &io::Error {
+        &self.1
+    }
+
+    /// Returns the `TabWriter` instance which generated the error.
+    pub fn into_inner(self) -> W {
+        self.0
+    }
+}
+
+impl<W: Send + fmt::Debug> fmt::Debug for IntoInnerError<W> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.error().fmt(f)
+    }
+}
+
+impl<W> fmt::Display for IntoInnerError<W> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.error().fmt(f)
+    }
+}
+
+impl<W: Send + fmt::Debug> error::Error for IntoInnerError<W> {
+    fn description(&self) -> &str {
+        self.error().description()
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        Some(self.error())
     }
 }
 
