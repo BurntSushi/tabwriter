@@ -24,7 +24,7 @@ The Boss\tDarkness on the Edge of Town
 ").unwrap();
 tw.flush().unwrap();
 
-let written = String::from_utf8(tw.unwrap().unwrap()).unwrap();
+let written = String::from_utf8(tw.into_inner().unwrap()).unwrap();
 
 assert_eq!(written.as_slice(), "
 Bruce Springsteen  Born to Run
