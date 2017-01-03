@@ -89,6 +89,8 @@ use std::str;
 
 #[cfg(feature = "ansi_formatting")]
 use regex::Regex;
+#[cfg(feature = "ansi_formatting")]
+use std::borrow::Cow;
 
 #[cfg(test)]
 mod test;
@@ -370,32 +372,18 @@ fn display_columns(bytes: &[u8]) -> usize {
     // *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
-        Ok(s) => {
-            if let Some(stripped_s) = strip_formatting(s) {
-                stripped_s.chars()
+        Ok(s) => strip_formatting(s).chars()
                     .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-                    .fold(0, |sum, width| sum + width)
-            } else {
-                s.chars()
-                    .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-                    .fold(0, |sum, width| sum + width)
-            }
-        }
+                    .fold(0, |sum, width| sum + width),
     }
 }
 
 #[cfg(feature = "ansi_formatting")]
-fn strip_formatting(input: &str) -> Option<String> {
+fn strip_formatting<'t>(input: &'t str) -> Cow<'t, str> {
     // use lazy_static to avoid compiling the regex every time
     // this function is called
     lazy_static! {
-        static ref RE: regex::Regex = Regex::new("\x1B\\[.+?m").unwrap();
+        static ref RE: regex::Regex = Regex::new(r#"\x1B\[.+?m"#).unwrap();
     }
-    // check if the input actually contains ANSI escape codes
-    // to avoid unnecessary allocations
-    if input.contains("\x1b[") {
-        return Some(RE.replace_all(input, ""));
-    }
-    None
+    RE.replace_all(input, "")
 }
-
