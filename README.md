@@ -35,7 +35,7 @@ The Boss           Darkness on the Edge of Town
 ```
 
 You can see an example of *real* use in my
-[CSV toolkit](https://github.com/BurntSushi/xcsv/blob/master/src/table.rs#L57-L60).
+[CSV toolkit](https://github.com/BurntSushi/xsv/blob/master/src/cmd/table.rs#L57-L60).
 
 
 ### Simple example of command line utility
