@@ -12,10 +12,9 @@ Dual-licensed under MIT or the [UNLICENSE](http://unlicense.org).
 ### Simple example of library
 
 ```rust
-use std::io::MemWriter;
 use tabwriter::TabWriter;
 
-let mut tw = TabWriter::new(MemWriter::new());
+let mut tw = TabWriter::new(vec![]);
 tw.write_str("
 Bruce Springsteen\tBorn to Run
 Bob Seger\tNight Moves
