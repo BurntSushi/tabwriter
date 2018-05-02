@@ -1,5 +1,7 @@
 extern crate docopt;
-extern crate rustc_serialize;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate tabwriter;
 
 use std::io::{self, Write};
@@ -19,7 +21,7 @@ Options:
     --version           Print version info and exit
 ";
 
-#[derive(RustcDecodable)]
+#[derive(Deserialize)]
 struct Args {
     flag_pad: usize,
     flag_width: usize,
@@ -27,7 +29,7 @@ struct Args {
 
 fn main() {
     let args: Args = Docopt::new(USAGE)
-                            .and_then(|d| d.version(Some(version())).decode())
+                            .and_then(|d| d.version(Some(version())).deserialize())
                             .unwrap_or_else(|e| e.exit());
     let mut tw = TabWriter::new(io::stdout())
                            .minwidth(args.flag_width)
