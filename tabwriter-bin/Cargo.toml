@@ -17,9 +17,10 @@ doc = false
 test = false
 
 [dependencies]
-docopt = "0.6"
-rustc-serialize = "0.3"
+docopt = "1"
+serde = "1"
+serde_derive = "1"
 
 [dependencies.tabwriter]
 path = ".."
-version = "0.1"
+version = "1"
