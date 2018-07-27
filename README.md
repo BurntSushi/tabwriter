@@ -70,7 +70,7 @@ This crate works with Cargo. Assuming you have Rust and
 tests:
 
 ```bash
-git checkout git://github.com/BurntSushi/tabwriter
+git clone git://github.com/BurntSushi/tabwriter
 cd tabwriter
 cargo test
 ```
