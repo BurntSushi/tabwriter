@@ -51,11 +51,8 @@ fn version() -> String {
 }
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
-    match r {
-        Ok(r) => r,
-        Err(e) => {
-            let _ = write!(&mut io::stderr(), "{}", e.to_string());
-            ::std::process::exit(1);
-        }
-    }
+    r.unwrap_or_else(|e| {
+        let _ = write!(&mut io::stderr(), "{}", e.to_string());
+        ::std::process::exit(1);
+    })
 }
