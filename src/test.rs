@@ -1,5 +1,6 @@
 use std::io::Write;
 use TabWriter;
+use Alignment;
 
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
@@ -87,6 +88,20 @@ fn test_one_cell() {
 }
 
 #[test]
+fn test_one_cell_right() {
+    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Right),
+         "a\tb\nxx\tyy",
+         " a  b\nxx  yy");
+}
+
+#[test]
+fn test_one_cell_center() {
+    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Center),
+         "a\tb\nxx\tyy",
+         "a   b\nxx  yy");
+}
+
+#[test]
 fn test_no_padding() {
     iseq(tabw().padding(0).minwidth(2), "a\tb\nxx\tyy", "a b\nxxyy");
 }
@@ -102,6 +117,20 @@ fn test_contiguous_columns() {
     iseq(tabw().padding(1).minwidth(0),
          "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
          "x foo    x\nx foofoo x\n\nx foofoofoo x");
+}
+
+#[test]
+fn test_contiguous_columns_right() {
+    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Right),
+         "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
+         "x    foo x\nx foofoo x\n\nx foofoofoo x");
+}
+
+#[test]
+fn test_contiguous_columns_center() {
+    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Center),
+         "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
+         "x  foo   x\nx foofoo x\n\nx foofoofoo x");
 }
 
 #[test]
