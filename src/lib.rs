@@ -109,6 +109,18 @@ pub struct TabWriter<W> {
     curcell: Cell,
     minwidth: usize,
     padding: usize,
+    alignment: Alignment,
+}
+
+/// `Alignment` represents how a `TabWriter` should align text within its cell.
+#[derive(Debug)]
+pub enum Alignment {
+    /// Text should be aligned with the left edge of the cell
+    Left,
+    /// Text should be centered within the cell
+    Center,
+    /// Text should be aligned with the right edge of the cell
+    Right,
 }
 
 #[derive(Debug)]
@@ -134,6 +146,7 @@ impl<W: io::Write> TabWriter<W> {
             curcell: Cell::new(0),
             minwidth: 2,
             padding: 2,
+            alignment: Alignment::Left,
         }
     }
 
@@ -155,6 +168,14 @@ impl<W: io::Write> TabWriter<W> {
     /// The default padding is `2`.
     pub fn padding(mut self, padding: usize) -> TabWriter<W> {
         self.padding = padding;
+        self
+    }
+
+    /// Set the alignment of text within cells. This will effect future flushes.
+    ///
+    /// The default alignment is `Alignment::Left`.
+    pub fn alignment(mut self, alignment: Alignment) -> TabWriter<W> {
+        self.alignment = alignment;
         self
     }
 
@@ -263,15 +284,28 @@ impl<W: io::Write> io::Write for TabWriter<W> {
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
             if !first { try!(self.w.write_all(b"\n")); } else { first = false }
             for (i, cell) in line.iter().enumerate() {
+                dbg!(cell);
+                dbg!(i);
                 let bytes = &self.buf.get_ref()[cell.start..cell.start + cell.size];
-                try!(self.w.write_all(bytes));
-                if i >= widths.len() {
+                if i >= widths.len() { // There is no width for the last column
                     assert_eq!(i, line.len()-1);
+                    try!(self.w.write_all(bytes));
                 } else {
                     assert!(widths[i] >= cell.width);
-                    let padsize = self.padding + widths[i] - cell.width;
-                    try!(write!(&mut self.w, "{}", &padding[0..padsize]));
+                    let extra_space = widths[i] - cell.width;
+                    let (left_spaces, mut right_spaces) = match self.alignment {
+                        Alignment::Left => (0, extra_space),
+                        Alignment::Right => (extra_space, 0),
+                        Alignment::Center =>
+                            (extra_space / 2,
+                             extra_space - extra_space / 2),
+                    };
+                    right_spaces += self.padding;
+                    try!(write!(&mut self.w, "{}", &padding[0..left_spaces]));
+                    try!(self.w.write_all(bytes));
+                    try!(write!(&mut self.w, "{}", &padding[0..right_spaces]));
                 }
+
             }
         }
 
