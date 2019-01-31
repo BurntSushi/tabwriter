@@ -284,6 +284,8 @@ impl<W: io::Write> io::Write for TabWriter<W> {
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
             if !first { try!(self.w.write_all(b"\n")); } else { first = false }
             for (i, cell) in line.iter().enumerate() {
+                dbg!(cell);
+                dbg!(i);
                 let bytes = &self.buf.get_ref()[cell.start..cell.start + cell.size];
                 if i >= widths.len() { // There is no width for the last column
                     assert_eq!(i, line.len()-1);

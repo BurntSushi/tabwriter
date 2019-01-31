@@ -120,6 +120,20 @@ fn test_contiguous_columns() {
 }
 
 #[test]
+fn test_table_right() {
+    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Right),
+         "x\tfoo\txx\t\nxx\tfoofoo\tx\t\n",
+         " x    foo xx \nxx foofoo  x \n");
+}
+
+#[test]
+fn test_table_center() {
+    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Center),
+         "x\tfoo\txx\t\nxx\tfoofoo\tx\t\n",
+         "x   foo   xx \nxx foofoo x  \n");
+}
+
+#[test]
 fn test_contiguous_columns_right() {
     iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Right),
          "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
