@@ -1,7 +1,6 @@
 use std::io::Write;
-use TabWriter;
 use Alignment;
-
+use TabWriter;
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
@@ -27,8 +26,11 @@ fn tabify(mut tw: TabWriter<Vec<u8>>, s: &str) -> String {
 fn iseq(tw: TabWriter<Vec<u8>>, s: &str, expected: &str) {
     let written = tabify(tw, s);
     if expected != written {
-        panic!("\n\nexpected:\n-----\n{}\n-----\ngot:\n-----\n{}\n-----\n\n",
-               readable_str(expected), readable_str(&written));
+        panic!(
+            "\n\nexpected:\n-----\n{}\n-----\ngot:\n-----\n{}\n-----\n\n",
+            readable_str(expected),
+            readable_str(&written)
+        );
     }
 }
 
@@ -89,16 +91,20 @@ fn test_one_cell() {
 
 #[test]
 fn test_one_cell_right() {
-    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Right),
-         "a\tb\nxx\tyy",
-         " a  b\nxx  yy");
+    iseq(
+        tabw().padding(2).minwidth(2).alignment(Alignment::Right),
+        "a\tb\nxx\tyy",
+        " a  b\nxx  yy",
+    );
 }
 
 #[test]
 fn test_one_cell_center() {
-    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Center),
-         "a\tb\nxx\tyy",
-         "a   b\nxx  yy");
+    iseq(
+        tabw().padding(2).minwidth(2).alignment(Alignment::Center),
+        "a\tb\nxx\tyy",
+        "a   b\nxx  yy",
+    );
 }
 
 #[test]
@@ -108,58 +114,70 @@ fn test_no_padding() {
 
 #[test]
 fn test_minwidth() {
-    iseq(tabw().minwidth(5).padding(0),
-         "a\tb\nxx\tyy", "a    b\nxx   yy");
+    iseq(tabw().minwidth(5).padding(0), "a\tb\nxx\tyy", "a    b\nxx   yy");
 }
 
 #[test]
 fn test_contiguous_columns() {
-    iseq(tabw().padding(1).minwidth(0),
-         "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
-         "x foo    x\nx foofoo x\n\nx foofoofoo x");
+    iseq(
+        tabw().padding(1).minwidth(0),
+        "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
+        "x foo    x\nx foofoo x\n\nx foofoofoo x",
+    );
 }
 
 #[test]
 fn test_table_right() {
-    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Right),
-         "x\tfoo\txx\t\nxx\tfoofoo\tx\t\n",
-         " x    foo xx \nxx foofoo  x \n");
+    iseq(
+        tabw().padding(1).minwidth(0).alignment(Alignment::Right),
+        "x\tfoo\txx\t\nxx\tfoofoo\tx\t\n",
+        " x    foo xx \nxx foofoo  x \n",
+    );
 }
 
 #[test]
 fn test_table_center() {
-    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Center),
-         "x\tfoo\txx\t\nxx\tfoofoo\tx\t\n",
-         "x   foo   xx \nxx foofoo x  \n");
+    iseq(
+        tabw().padding(1).minwidth(0).alignment(Alignment::Center),
+        "x\tfoo\txx\t\nxx\tfoofoo\tx\t\n",
+        "x   foo   xx \nxx foofoo x  \n",
+    );
 }
 
 #[test]
 fn test_contiguous_columns_right() {
-    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Right),
-         "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
-         "x    foo x\nx foofoo x\n\nx foofoofoo x");
+    iseq(
+        tabw().padding(1).minwidth(0).alignment(Alignment::Right),
+        "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
+        "x    foo x\nx foofoo x\n\nx foofoofoo x",
+    );
 }
 
 #[test]
 fn test_contiguous_columns_center() {
-    iseq(tabw().padding(1).minwidth(0).alignment(Alignment::Center),
-         "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
-         "x  foo   x\nx foofoo x\n\nx foofoofoo x");
+    iseq(
+        tabw().padding(1).minwidth(0).alignment(Alignment::Center),
+        "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
+        "x  foo   x\nx foofoo x\n\nx foofoofoo x",
+    );
 }
 
 #[test]
 fn test_unicode() {
-    iseq(tabw().padding(2).minwidth(2),
-         "a\tÞykkvibær\tz\naaaa\tïn Bou Chella\tzzzz\na\tBâb el Ahmar\tz",
-         "a     Þykkvibær      z\n\
-          aaaa  ïn Bou Chella  zzzz\n\
-          a     Bâb el Ahmar   z")
+    iseq(
+        tabw().padding(2).minwidth(2),
+        "a\tÞykkvibær\tz\naaaa\tïn Bou Chella\tzzzz\na\tBâb el Ahmar\tz",
+        "a     Þykkvibær      z\n\
+         aaaa  ïn Bou Chella  zzzz\n\
+         a     Bâb el Ahmar   z",
+    )
 }
 
 #[test]
 fn test_contiguous_columns_complex() {
-    iseq(tabw().padding(1).minwidth(3),
-"
+    iseq(
+        tabw().padding(1).minwidth(3),
+        "
 fn foobar() {
  	let mut x = 1+1;	// addition
  	x += 1;	// increment in place
@@ -169,7 +187,7 @@ fn foobar() {
  	y += 2 * 2;	// that is separately aligned
 }
 ",
-"
+        "
 fn foobar() {
     let mut x = 1+1;       // addition
     x += 1;                // increment in place
@@ -178,20 +196,23 @@ fn foobar() {
     y += 1;     // this is another group
     y += 2 * 2; // that is separately aligned
 }
-");
+",
+    );
 }
 
 #[test]
 #[cfg(feature = "ansi_formatting")]
 fn test_ansi_formatting() {
-
-    let output = "foo\tbar\tfoobar\n\
+    let output =
+        "foo\tbar\tfoobar\n\
          \x1b[31mföÅ\x1b[0m\t\x1b[32mbär\x1b[0m\t\x1b[36mfoobar\x1b[0m\n\
          \x1b[34mfoo\tbar\tfoobar\n\x1b[0m";
 
-    iseq(tabw(),
-         &output[..],
-         "foo  bar  foobar\n\
+    iseq(
+        tabw(),
+        &output[..],
+        "foo  bar  foobar\n\
          \x1b[31mföÅ\x1b[0m  \x1b[32mbär\x1b[0m  \x1b[36mfoobar\x1b[0m\n\
-         \x1b[34mfoo  bar  foobar\n\x1b[0m")
+         \x1b[34mfoo  bar  foobar\n\x1b[0m",
+    )
 }
