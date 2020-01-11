@@ -13,8 +13,13 @@ edition = "2018"
 
 [dependencies]
 unicode-width = "0.1"
-regex = { version = "1", optional = true }
 lazy_static =  { version = "1", optional = true}
+
+[dependencies.regex]
+version = "1.3"
+optional = true
+default-features = false
+features = ["std"]
 
 [features]
 default = []
