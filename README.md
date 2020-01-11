@@ -93,7 +93,7 @@ the `ansi_formatting` feature enabled.
 
 ### Minimum Rust version policy
 
-This crate's minimum supported `rustc` version is `1.20.0`.
+This crate's minimum supported `rustc` version is `1.34.0`.
 
 The current policy is that the minimum Rust version required to use this crate
 can be increased in minor version updates. For example, if `crate 1.0` requires
