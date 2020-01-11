@@ -9,6 +9,7 @@ repository = "https://github.com/BurntSushi/tabwriter"
 readme = "README.md"
 keywords = ["tabs", "elastic", "aligned", "whitespace", "table"]
 license = "Unlicense/MIT"
+edition = "2018"
 
 [[bin]]
 name = "tabwriter"
@@ -18,8 +19,7 @@ test = false
 
 [dependencies]
 docopt = "1"
-serde = "1"
-serde_derive = "1"
+serde = { version = "1", features = ["derive"] }
 
 [dependencies.tabwriter]
 path = ".."

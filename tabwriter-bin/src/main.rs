@@ -1,11 +1,8 @@
-extern crate docopt;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate tabwriter;
+use std::io::{self, Write};
 
 use docopt::Docopt;
-use std::io::{self, Write};
+use serde::Deserialize;
+
 use tabwriter::TabWriter;
 
 static USAGE: &'static str = "
