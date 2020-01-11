@@ -1,6 +1,6 @@
 use std::io::Write;
-use Alignment;
-use TabWriter;
+use crate::Alignment;
+use crate::TabWriter;
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {

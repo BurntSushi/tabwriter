@@ -9,6 +9,7 @@ repository = "https://github.com/BurntSushi/tabwriter"
 readme = "README.md"
 keywords = ["tabs", "elastic", "aligned", "whitespace", "table"]
 license = "Unlicense/MIT"
+edition = "2018"
 
 [dependencies]
 unicode-width = "0.1"
