@@ -72,12 +72,6 @@
 
 #![deny(missing_docs)]
 
-#[cfg(feature = "ansi_formatting")]
-#[macro_use]
-extern crate lazy_static;
-#[cfg(feature = "ansi_formatting")]
-extern crate regex;
-
 use std::cmp;
 use std::error;
 use std::fmt;
@@ -85,11 +79,6 @@ use std::io::{self, Write};
 use std::iter;
 use std::mem;
 use std::str;
-
-#[cfg(feature = "ansi_formatting")]
-use regex::Regex;
-#[cfg(feature = "ansi_formatting")]
-use std::borrow::Cow;
 
 #[cfg(test)]
 mod test;
@@ -422,11 +411,11 @@ fn display_columns(bytes: &[u8]) -> usize {
 }
 
 #[cfg(feature = "ansi_formatting")]
-fn strip_formatting<'t>(input: &'t str) -> Cow<'t, str> {
-    // use lazy_static to avoid compiling the regex every time
-    // this function is called
-    lazy_static! {
-        static ref RE: regex::Regex = Regex::new(r#"\x1B\[.+?m"#).unwrap();
+fn strip_formatting<'t>(input: &'t str) -> std::borrow::Cow<'t, str> {
+    use regex::Regex;
+
+    lazy_static::lazy_static! {
+        static ref RE: Regex = Regex::new(r#"\x1B\[.+?m"#).unwrap();
     }
     RE.replace_all(input, "")
 }
