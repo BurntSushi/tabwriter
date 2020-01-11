@@ -96,7 +96,7 @@ dependencies = [
 
 [[package]]
 name = "tabwriter"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "unicode-width 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -107,7 +107,7 @@ version = "0.1.1"
 dependencies = [
  "docopt 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
- "tabwriter 1.1.0",
+ "tabwriter 1.2.0",
 ]
 
 [[package]]
