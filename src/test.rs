@@ -1,6 +1,6 @@
-use std::io::Write;
 use crate::Alignment;
 use crate::TabWriter;
+use std::io::Write;
 
 fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
     match r {
@@ -110,6 +110,14 @@ fn test_one_cell_center() {
 #[test]
 fn test_no_padding() {
     iseq(tabw().padding(0).minwidth(2), "a\tb\nxx\tyy", "a b\nxxyy");
+}
+
+// See: https://github.com/BurntSushi/tabwriter/issues/26
+#[test]
+fn test_no_padding_one_row() {
+    iseq(tabw().padding(0).minwidth(2), "a\tb\n", "a b\n");
+    iseq(tabw().padding(0).minwidth(1), "a\tb\n", "ab\n");
+    iseq(tabw().padding(0).minwidth(0), "a\tb\n", "ab\n");
 }
 
 #[test]
