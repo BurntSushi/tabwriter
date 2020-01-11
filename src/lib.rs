@@ -140,7 +140,7 @@ impl<W: io::Write> TabWriter<W> {
 
     /// Set the minimum width of each column. That is, all columns will have
     /// *at least* the size given here. If a column is smaller than `minwidth`,
-    /// then it is passed with spaces.
+    /// then it is padded with spaces.
     ///
     /// The default minimum width is `2`.
     pub fn minwidth(mut self, minwidth: usize) -> TabWriter<W> {
