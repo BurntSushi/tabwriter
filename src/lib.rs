@@ -142,7 +142,7 @@ impl<W: io::Write> TabWriter<W> {
         TabWriter {
             w: w,
             buf: io::Cursor::new(Vec::with_capacity(1024)),
-            lines: vec!(vec!()),
+            lines: vec![vec![]],
             curcell: Cell::new(0),
             minwidth: 2,
             padding: 2,
@@ -194,7 +194,7 @@ impl<W: io::Write> TabWriter<W> {
     /// writes will start producing a new alignment.
     fn reset(&mut self) {
         self.buf = io::Cursor::new(Vec::with_capacity(1024));
-        self.lines = vec!(vec!());
+        self.lines = vec![vec![]];
         self.curcell = Cell::new(0);
     }
 
@@ -250,7 +250,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                     lastterm = i + 1;
                     if c == b'\n' {
                         let ncells = self.curline().len();
-                        self.lines.push(vec!());
+                        self.lines.push(vec![]);
                         // Having a single cell means that *all* previous
                         // columns have been broken, so we should just flush.
                         if ncells == 1 {
@@ -273,39 +273,46 @@ impl<W: io::Write> io::Write for TabWriter<W> {
 
         // This is a trick to avoid allocating padding for every cell.
         // Just allocate the most we'll ever need and borrow from it.
-        let biggest_width = widths.iter()
-                                  .map(|ws| ws.iter().map(|&w|w).max()
-                                              .unwrap_or(0))
-                                  .max().unwrap_or(0);
+        let biggest_width = widths
+            .iter()
+            .map(|ws| ws.iter().map(|&w| w).max().unwrap_or(0))
+            .max()
+            .unwrap_or(0);
         let padding: String =
             iter::repeat(' ').take(biggest_width + self.padding).collect();
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
-            if !first { try!(self.w.write_all(b"\n")); } else { first = false }
+            if !first {
+                try!(self.w.write_all(b"\n"));
+            } else {
+                first = false
+            }
             for (i, cell) in line.iter().enumerate() {
                 dbg!(cell);
                 dbg!(i);
-                let bytes = &self.buf.get_ref()[cell.start..cell.start + cell.size];
-                if i >= widths.len() { // There is no width for the last column
-                    assert_eq!(i, line.len()-1);
+                let bytes =
+                    &self.buf.get_ref()[cell.start..cell.start + cell.size];
+                if i >= widths.len() {
+                    // There is no width for the last column
+                    assert_eq!(i, line.len() - 1);
                     try!(self.w.write_all(bytes));
                 } else {
                     assert!(widths[i] >= cell.width);
                     let extra_space = widths[i] - cell.width;
-                    let (left_spaces, mut right_spaces) = match self.alignment {
+                    let (left_spaces, mut right_spaces) = match self.alignment
+                    {
                         Alignment::Left => (0, extra_space),
                         Alignment::Right => (extra_space, 0),
-                        Alignment::Center =>
-                            (extra_space / 2,
-                             extra_space - extra_space / 2),
+                        Alignment::Center => {
+                            (extra_space / 2, extra_space - extra_space / 2)
+                        }
                     };
                     right_spaces += self.padding;
                     try!(write!(&mut self.w, "{}", &padding[0..left_spaces]));
                     try!(self.w.write_all(bytes));
                     try!(write!(&mut self.w, "{}", &padding[0..right_spaces]));
                 }
-
             }
         }
 
@@ -363,20 +370,21 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
     let mut ws: Vec<_> = (0..lines.len()).map(|_| vec![]).collect();
     for (i, iline) in lines.iter().enumerate() {
         if iline.is_empty() {
-            continue
+            continue;
         }
-        for col in ws[i].len()..(iline.len()-1) {
+        for col in ws[i].len()..(iline.len() - 1) {
             let mut width = minwidth;
             let mut contig_count = 0;
             for line in lines[i..].iter() {
-                if col + 1 >= line.len() { // ignores last column
-                    break
+                if col + 1 >= line.len() {
+                    // ignores last column
+                    break;
                 }
                 contig_count += 1;
                 width = cmp::max(width, line[col].width);
             }
             assert!(contig_count >= 1);
-            for j in i..(i+contig_count) {
+            for j in i..(i + contig_count) {
                 ws[j].push(width);
             }
         }
@@ -392,9 +400,10 @@ fn display_columns(bytes: &[u8]) -> usize {
     // *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
-        Ok(s) => s.chars()
-                  .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-                  .fold(0, |sum, width| sum + width),
+        Ok(s) => s
+            .chars()
+            .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
+            .fold(0, |sum, width| sum + width),
     }
 }
 
@@ -406,9 +415,10 @@ fn display_columns(bytes: &[u8]) -> usize {
     // *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
-        Ok(s) => strip_formatting(s).chars()
-                    .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-                    .fold(0, |sum, width| sum + width),
+        Ok(s) => strip_formatting(s)
+            .chars()
+            .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
+            .fold(0, |sum, width| sum + width),
     }
 }
 

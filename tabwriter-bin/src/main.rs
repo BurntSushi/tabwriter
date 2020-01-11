@@ -4,8 +4,8 @@ extern crate serde;
 extern crate serde_derive;
 extern crate tabwriter;
 
-use std::io::{self, Write};
 use docopt::Docopt;
+use std::io::{self, Write};
 use tabwriter::TabWriter;
 
 static USAGE: &'static str = "
@@ -29,11 +29,11 @@ struct Args {
 
 fn main() {
     let args: Args = Docopt::new(USAGE)
-                            .and_then(|d| d.version(Some(version())).deserialize())
-                            .unwrap_or_else(|e| e.exit());
+        .and_then(|d| d.version(Some(version())).deserialize())
+        .unwrap_or_else(|e| e.exit());
     let mut tw = TabWriter::new(io::stdout())
-                           .minwidth(args.flag_width)
-                           .padding(args.flag_pad);
+        .minwidth(args.flag_width)
+        .padding(args.flag_pad);
     ordie(io::copy(&mut io::stdin(), &mut tw));
     ordie(tw.flush());
 }
@@ -45,7 +45,9 @@ fn version() -> String {
         option_env!("CARGO_PKG_VERSION_PATCH"),
     );
     match (maj, min, pat) {
-        (Some(maj), Some(min), Some(pat)) => format!("{}.{}.{}", maj, min, pat),
+        (Some(maj), Some(min), Some(pat)) => {
+            format!("{}.{}.{}", maj, min, pat)
+        }
         _ => "".to_string(),
     }
 }
