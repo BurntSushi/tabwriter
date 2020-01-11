@@ -77,7 +77,6 @@
 extern crate lazy_static;
 #[cfg(feature = "ansi_formatting")]
 extern crate regex;
-extern crate unicode_width;
 
 use std::cmp;
 use std::error;
@@ -254,7 +253,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                         // Having a single cell means that *all* previous
                         // columns have been broken, so we should just flush.
                         if ncells == 1 {
-                            try!(self.flush());
+                            self.flush()?;
                         }
                     }
                 }
@@ -284,7 +283,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
             if !first {
-                try!(self.w.write_all(b"\n"));
+                self.w.write_all(b"\n")?;
             } else {
                 first = false
             }
@@ -296,7 +295,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                 if i >= widths.len() {
                     // There is no width for the last column
                     assert_eq!(i, line.len() - 1);
-                    try!(self.w.write_all(bytes));
+                    self.w.write_all(bytes)?;
                 } else {
                     assert!(widths[i] >= cell.width);
                     let extra_space = widths[i] - cell.width;
@@ -309,9 +308,9 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                         }
                     };
                     right_spaces += self.padding;
-                    try!(write!(&mut self.w, "{}", &padding[0..left_spaces]));
-                    try!(self.w.write_all(bytes));
-                    try!(write!(&mut self.w, "{}", &padding[0..right_spaces]));
+                    write!(&mut self.w, "{}", &padding[0..left_spaces])?;
+                    self.w.write_all(bytes)?;
+                    write!(&mut self.w, "{}", &padding[0..right_spaces])?;
                 }
             }
         }
@@ -340,13 +339,13 @@ impl<W> IntoInnerError<W> {
 }
 
 impl<W> fmt::Debug for IntoInnerError<W> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.error().fmt(f)
     }
 }
 
 impl<W> fmt::Display for IntoInnerError<W> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.error().fmt(f)
     }
 }
@@ -356,7 +355,7 @@ impl<W: ::std::any::Any> error::Error for IntoInnerError<W> {
         self.error().description()
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         Some(self.error())
     }
 }
