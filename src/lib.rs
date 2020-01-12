@@ -277,8 +277,6 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                 first = false
             }
             for (i, cell) in line.iter().enumerate() {
-                dbg!(cell);
-                dbg!(i);
                 let bytes =
                     &self.buf.get_ref()[cell.start..cell.start + cell.size];
                 if i >= widths.len() {
