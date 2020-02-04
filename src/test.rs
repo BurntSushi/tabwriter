@@ -211,8 +211,7 @@ fn foobar() {
 #[test]
 #[cfg(feature = "ansi_formatting")]
 fn test_ansi_formatting() {
-    let output =
-        "foo\tbar\tfoobar\n\
+    let output = "foo\tbar\tfoobar\n\
          \x1b[31mföÅ\x1b[0m\t\x1b[32mbär\x1b[0m\t\x1b[36mfoobar\x1b[0m\n\
          \x1b[34mfoo\tbar\tfoobar\n\x1b[0m";
 
