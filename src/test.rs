@@ -91,16 +91,20 @@ fn test_one_cell() {
 
 #[test]
 fn test_one_tab_right() {
-    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Right),
-         "a\tb\nxx\tyy",
-         " a   b\nxx  yy");
+    iseq(
+        tabw().padding(2).minwidth(2).alignment(Alignment::Right),
+        "a\tb\nxx\tyy",
+        " a   b\nxx  yy",
+    );
 }
 
 #[test]
 fn test_one_tab_center() {
-    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Center),
-         "a\tb\nxx\tyy",
-         "a   b\nxx  yy");
+    iseq(
+        tabw().padding(2).minwidth(2).alignment(Alignment::Center),
+        "a\tb\nxx\tyy",
+        "a   b\nxx  yy",
+    );
 }
 
 #[test]
@@ -156,13 +160,19 @@ fn test_contiguous_columns_right() {
             "x\tfoo\tx\n",
             "x\tfoofoo\tx\n",
             "\n",
-            "x\tfoofoofoo\tx",
+            "x\tfoofoofoo\tx\n",
+            "\n",
+            "x\tfoo\tx\n",
+            "x\tfoofoo\tx\n",
         ),
         concat!(
             "x    foo x\n",
             "x foofoo x\n",
             "\n",
-            "x foofoofoo x",
+            "x foofoofoo x\n",
+            "\n",
+            "x    foo x\n",
+            "x foofoo x\n",
         ),
     )
 }
@@ -175,13 +185,19 @@ fn test_empty_cell_right() {
             "x\tfoo\tx\n",
             "x\tfoofoo\tx\n",
             "\t\n",
-            "x\tfoofoofoo\tx",
+            "x\tfoofoofoo\tx\n",
+            "\t\n",
+            "x\tfoo\tx\n",
+            "x\tfoofoo\tx\n",
         ),
         concat!(
             "x       foo x\n",
             "x    foofoo x\n",
             "  \n",
-            "x foofoofoo x",
+            "x foofoofoo x\n",
+            "  \n",
+            "x       foo x\n",
+            "x    foofoo x\n",
         ),
     )
 }
@@ -194,13 +210,19 @@ fn test_contiguous_columns_center() {
             "x\tfoo\txyx\n",
             "x\tfoofoo\tx\n",
             "\n",
-            "x\tfoofoofoo\tx",
+            "x\tfoofoofoo\tx\n",
+            "\n",
+            "x\tfoo\txyx\n",
+            "x\tfoofoo\tx\n",
         ),
         concat!(
             "x  foo   xyx\n",
             "x foofoo  x\n",
             "\n",
-            "x foofoofoo x",
+            "x foofoofoo x\n",
+            "\n",
+            "x  foo   xyx\n",
+            "x foofoo  x\n",
         ),
     )
 }
@@ -246,7 +268,8 @@ fn foobar() {
 #[test]
 #[cfg(feature = "ansi_formatting")]
 fn test_ansi_formatting() {
-    let output = "foo\tbar\tfoobar\n\
+    let output =
+        "foo\tbar\tfoobar\n\
          \x1b[31mföÅ\x1b[0m\t\x1b[32mbär\x1b[0m\t\x1b[36mfoobar\x1b[0m\n\
          \x1b[34mfoo\tbar\tfoobar\n\x1b[0m";
 

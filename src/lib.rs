@@ -101,7 +101,7 @@ pub struct TabWriter<W> {
 }
 
 /// `Alignment` represents how a `TabWriter` should align text within its cell.
-#[derive(Debug,PartialEq,Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Alignment {
     /// Text should be aligned with the left edge of the cell
     Left,
@@ -260,7 +260,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
         let widths = cell_widths(
             &self.lines,
             self.minwidth,
-            self.alignment != Alignment::Left
+            self.alignment != Alignment::Left,
         );
 
         // This is a trick to avoid allocating padding for every cell.
@@ -362,7 +362,7 @@ impl<W: ::std::any::Any> error::Error for IntoInnerError<W> {
 fn cell_widths(
     lines: &Vec<Vec<Cell>>,
     minwidth: usize,
-    trailing_cell: bool
+    trailing_cell: bool,
 ) -> Vec<Vec<usize>> {
     // Naively, this algorithm looks like it could be O(n^2m) where `n` is
     // the number of lines and `m` is the number of contiguous columns.
@@ -382,12 +382,12 @@ fn cell_widths(
                 if trailing_cell {
                     if col >= line.len() {
                         // does not ignore last column
-                        break
+                        break;
                     }
                 } else {
                     if col + 1 >= line.len() {
                         // ignores last column
-                        break
+                        break;
                     }
                 }
                 contig_count += 1;
