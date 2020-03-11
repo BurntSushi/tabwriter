@@ -90,21 +90,17 @@ fn test_one_cell() {
 }
 
 #[test]
-fn test_one_cell_right() {
-    iseq(
-        tabw().padding(2).minwidth(2).alignment(Alignment::Right),
-        "a\tb\nxx\tyy",
-        " a  b\nxx  yy",
-    );
+fn test_one_tab_right() {
+    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Right),
+         "a\tb\nxx\tyy",
+         " a   b\nxx  yy");
 }
 
 #[test]
-fn test_one_cell_center() {
-    iseq(
-        tabw().padding(2).minwidth(2).alignment(Alignment::Center),
-        "a\tb\nxx\tyy",
-        "a   b\nxx  yy",
-    );
+fn test_one_tab_center() {
+    iseq(tabw().padding(2).minwidth(2).alignment(Alignment::Center),
+         "a\tb\nxx\tyy",
+         "a   b\nxx  yy");
 }
 
 #[test]
@@ -156,18 +152,57 @@ fn test_table_center() {
 fn test_contiguous_columns_right() {
     iseq(
         tabw().padding(1).minwidth(0).alignment(Alignment::Right),
-        "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
-        "x    foo x\nx foofoo x\n\nx foofoofoo x",
-    );
+        concat!(
+            "x\tfoo\tx\n",
+            "x\tfoofoo\tx\n",
+            "\n",
+            "x\tfoofoofoo\tx",
+        ),
+        concat!(
+            "x    foo x\n",
+            "x foofoo x\n",
+            "\n",
+            "x foofoofoo x",
+        ),
+    )
+}
+
+#[test]
+fn test_empty_cell_right() {
+    iseq(
+        tabw().padding(1).minwidth(0).alignment(Alignment::Right),
+        concat!(
+            "x\tfoo\tx\n",
+            "x\tfoofoo\tx\n",
+            "\t\n",
+            "x\tfoofoofoo\tx",
+        ),
+        concat!(
+            "x       foo x\n",
+            "x    foofoo x\n",
+            "  \n",
+            "x foofoofoo x",
+        ),
+    )
 }
 
 #[test]
 fn test_contiguous_columns_center() {
     iseq(
         tabw().padding(1).minwidth(0).alignment(Alignment::Center),
-        "x\tfoo\tx\nx\tfoofoo\tx\n\nx\tfoofoofoo\tx",
-        "x  foo   x\nx foofoo x\n\nx foofoofoo x",
-    );
+        concat!(
+            "x\tfoo\txyx\n",
+            "x\tfoofoo\tx\n",
+            "\n",
+            "x\tfoofoofoo\tx",
+        ),
+        concat!(
+            "x  foo   xyx\n",
+            "x foofoo  x\n",
+            "\n",
+            "x foofoofoo x",
+        ),
+    )
 }
 
 #[test]
