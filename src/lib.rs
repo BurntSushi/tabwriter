@@ -128,7 +128,7 @@ impl<W: io::Write> TabWriter<W> {
     /// write to the given writer.
     pub fn new(w: W) -> TabWriter<W> {
         TabWriter {
-            w: w,
+            w,
             buf: io::Cursor::new(Vec::with_capacity(1024)),
             lines: vec![vec![]],
             curcell: Cell::new(0),
@@ -218,7 +218,7 @@ impl<W: io::Write> TabWriter<W> {
 
 impl Cell {
     fn new(start: usize) -> Cell {
-        Cell { start: start, width: 0, size: 0 }
+        Cell { start, width: 0, size: 0 }
     }
 
     fn update_width(&mut self, buf: &[u8]) {
@@ -338,6 +338,7 @@ impl<W> fmt::Display for IntoInnerError<W> {
 }
 
 impl<W: ::std::any::Any> error::Error for IntoInnerError<W> {
+    #[allow(deprecated)]
     fn description(&self) -> &str {
         self.error().description()
     }
