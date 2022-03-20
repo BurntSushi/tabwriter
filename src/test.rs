@@ -10,7 +10,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
 }
 
 fn readable_str(s: &str) -> String {
-    s.replace(" ", "·")
+    s.replace(' ', "·")
 }
 
 fn tabw() -> TabWriter<Vec<u8>> {
