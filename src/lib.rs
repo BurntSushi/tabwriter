@@ -266,8 +266,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
             .map(|ws| ws.iter().copied().max().unwrap_or(0))
             .max()
             .unwrap_or(0);
-        let padding: String =
-            " ".repeat(biggest_width + self.padding);
+        let padding: String = " ".repeat(biggest_width + self.padding);
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
@@ -388,10 +387,9 @@ fn display_columns(bytes: &[u8]) -> usize {
     // *display* columns used.
     match str::from_utf8(bytes) {
         Err(_) => bytes.len(),
-        Ok(s) => s
-            .chars()
-            .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-            .sum(),
+        Ok(s) => {
+            s.chars().map(|c| UnicodeWidthChar::width(c).unwrap_or(0)).sum()
+        }
     }
 }
 
