@@ -206,7 +206,7 @@ impl<W: io::Write> TabWriter<W> {
     /// Return a view of the current line of cells.
     fn curline(&mut self) -> &[Cell] {
         let i = self.lines.len() - 1;
-        &*self.lines[i]
+        &self.lines[i]
     }
 
     /// Return a mutable view of the current line of cells.
@@ -270,10 +270,10 @@ impl<W: io::Write> io::Write for TabWriter<W> {
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
-            if !first {
-                self.w.write_all(b"\n")?;
+            if first {
+                first = false;
             } else {
-                first = false
+                self.w.write_all(b"\n")?;
             }
             for (i, cell) in line.iter().enumerate() {
                 let bytes =
@@ -385,12 +385,9 @@ fn display_columns(bytes: &[u8]) -> usize {
 
     // If we have a Unicode string, then attempt to guess the number of
     // *display* columns used.
-    match str::from_utf8(bytes) {
-        Err(_) => bytes.len(),
-        Ok(s) => {
-            s.chars().map(|c| UnicodeWidthChar::width(c).unwrap_or(0)).sum()
-        }
-    }
+    str::from_utf8(bytes).map_or(bytes.len(), |s| {
+        s.chars().map(|c| UnicodeWidthChar::width(c).unwrap_or(0)).sum()
+    })
 }
 
 #[cfg(feature = "ansi_formatting")]
