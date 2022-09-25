@@ -217,7 +217,7 @@ fn test_ansi_formatting() {
 
     iseq(
         tabw(),
-        &output[..],
+        output,
         "foo  bar  foobar\n\
          \x1b[31mföÅ\x1b[0m  \x1b[32mbär\x1b[0m  \x1b[36mfoobar\x1b[0m\n\
          \x1b[34mfoo  bar  foobar\n\x1b[0m",
