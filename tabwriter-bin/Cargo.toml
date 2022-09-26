@@ -8,7 +8,7 @@ homepage = "https://github.com/BurntSushi/tabwriter"
 repository = "https://github.com/BurntSushi/tabwriter"
 readme = "README.md"
 keywords = ["tabs", "elastic", "aligned", "whitespace", "table"]
-license = "Unlicense/MIT"
+license = "Unlicense OR MIT"
 edition = "2018"
 
 [[bin]]

@@ -1,7 +1,7 @@
 //! This crate provides an implementation of
-//! [elastic tabstops](http://nickgravgaard.com/elastictabstops/index.html).
+//! [elastic tabstops](https://nickgravgaard.com/elastic-tabstops/).
 //! It is a minimal port of Go's
-//! [tabwriter](http://golang.org/pkg/text/tabwriter/) package.
+//! [tabwriter](https://pkg.go.dev/text/tabwriter) package.
 //! Namely, its main mode of operation is to wrap a `Writer` and implement
 //! elastic tabstops for the text written to the wrapped `Writer`.
 //!

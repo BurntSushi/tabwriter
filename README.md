@@ -1,12 +1,12 @@
 tabwriter is a crate that implements
-[elastic tabstops](http://nickgravgaard.com/elastictabstops/index.html). It
-provides both a library for wrapping Rust `Writer`s and a small program that
-exposes the same functionality at the command line.
+[elastic tabstops](https://nickgravgaard.com/elastic-tabstops/). It provides
+both a library for wrapping Rust `Writer`s and a small program that exposes the
+same functionality at the command line.
 
 [![Build status](https://github.com/BurntSushi/tabwriter/workflows/ci/badge.svg)](https://github.com/BurntSushi/tabwriter/actions)
-[![](http://meritbadge.herokuapp.com/tabwriter)](https://crates.io/crates/tabwriter)
+[![crates.io](https://img.shields.io/crates/v/tabwriter.svg)](https://crates.io/crates/tabwriter)
 
-Dual-licensed under MIT or the [UNLICENSE](http://unlicense.org).
+Dual-licensed under MIT or the [UNLICENSE](https://unlicense.org/).
 
 
 ### Simple example of library
@@ -62,13 +62,13 @@ Notice that once a column block is broken, alignment starts over again.
 ### Documentation
 
 The API is fully documented with some examples:
-[http://burntsushi.net/rustdoc/tabwriter/](http://burntsushi.net/rustdoc/tabwriter/).
+[https://docs.rs/tabwriter](https://docs.rs/tabwriter).
 
 
 ### Installation
 
 This crate works with Cargo. Assuming you have Rust and
-[Cargo](http://crates.io/) installed, simply check out the source and run
+[Cargo](https://crates.io/) installed, simply check out the source and run
 tests:
 
 ```bash
