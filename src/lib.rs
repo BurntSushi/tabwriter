@@ -76,7 +76,7 @@ use std::cmp;
 use std::error;
 use std::fmt;
 use std::io::{self, Write};
-use std::iter;
+
 use std::mem;
 use std::str;
 
@@ -199,14 +199,14 @@ impl<W: io::Write> TabWriter<W> {
         let mut curcell = Cell::new(self.buf.position() as usize);
         mem::swap(&mut self.curcell, &mut curcell);
 
-        curcell.update_width(&self.buf.get_ref());
+        curcell.update_width(self.buf.get_ref());
         self.curline_mut().push(curcell);
     }
 
     /// Return a view of the current line of cells.
     fn curline(&mut self) -> &[Cell] {
         let i = self.lines.len() - 1;
-        &*self.lines[i]
+        &self.lines[i]
     }
 
     /// Return a mutable view of the current line of cells.
@@ -263,18 +263,17 @@ impl<W: io::Write> io::Write for TabWriter<W> {
         // Just allocate the most we'll ever need and borrow from it.
         let biggest_width = widths
             .iter()
-            .map(|ws| ws.iter().map(|&w| w).max().unwrap_or(0))
+            .map(|ws| ws.iter().copied().max().unwrap_or(0))
             .max()
             .unwrap_or(0);
-        let padding: String =
-            iter::repeat(' ').take(biggest_width + self.padding).collect();
+        let padding: String = " ".repeat(biggest_width + self.padding);
 
         let mut first = true;
         for (line, widths) in self.lines.iter().zip(widths.iter()) {
-            if !first {
-                self.w.write_all(b"\n")?;
+            if first {
+                first = false;
             } else {
-                first = false
+                self.w.write_all(b"\n")?;
             }
             for (i, cell) in line.iter().enumerate() {
                 let bytes =
@@ -348,7 +347,7 @@ impl<W: ::std::any::Any> error::Error for IntoInnerError<W> {
     }
 }
 
-fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
+fn cell_widths(lines: &[Vec<Cell>], minwidth: usize) -> Vec<Vec<usize>> {
     // Naively, this algorithm looks like it could be O(n^2m) where `n` is
     // the number of lines and `m` is the number of contiguous columns.
     //
@@ -371,6 +370,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
                 width = cmp::max(width, line[col].width);
             }
             assert!(contig_count >= 1);
+            #[allow(clippy::needless_range_loop)]
             for j in i..(i + contig_count) {
                 ws[j].push(width);
             }
@@ -385,13 +385,9 @@ fn display_columns(bytes: &[u8]) -> usize {
 
     // If we have a Unicode string, then attempt to guess the number of
     // *display* columns used.
-    match str::from_utf8(bytes) {
-        Err(_) => bytes.len(),
-        Ok(s) => s
-            .chars()
-            .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-            .fold(0, |sum, width| sum + width),
-    }
+    str::from_utf8(bytes).map_or(bytes.len(), |s| {
+        s.chars().map(|c| UnicodeWidthChar::width(c).unwrap_or(0)).sum()
+    })
 }
 
 #[cfg(feature = "ansi_formatting")]
@@ -405,7 +401,7 @@ fn display_columns(bytes: &[u8]) -> usize {
         Ok(s) => strip_formatting(s)
             .chars()
             .map(|c| UnicodeWidthChar::width(c).unwrap_or(0))
-            .fold(0, |sum, width| sum + width),
+            .sum(),
     }
 }
 
