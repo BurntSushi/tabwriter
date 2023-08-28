@@ -208,15 +208,34 @@ fn foobar() {
     );
 }
 
+// This tests that ANSI formatting is handled automatically when the ansi_formatting
+// feature is enabled without any other configuration.
 #[test]
 #[cfg(feature = "ansi_formatting")]
-fn test_ansi_formatting() {
+fn ansi_formatting_by_feature() {
     let output = "foo\tbar\tfoobar\n\
          \x1b[31mföÅ\x1b[0m\t\x1b[32mbär\x1b[0m\t\x1b[36mfoobar\x1b[0m\n\
          \x1b[34mfoo\tbar\tfoobar\n\x1b[0m";
 
     iseq(
         tabw(),
+        &output[..],
+        "foo  bar  foobar\n\
+         \x1b[31mföÅ\x1b[0m  \x1b[32mbär\x1b[0m  \x1b[36mfoobar\x1b[0m\n\
+         \x1b[34mfoo  bar  foobar\n\x1b[0m",
+    )
+}
+
+// This tests that ANSI formatting is handled when explicitly opted into,
+// regardless of whether the ansi_formatting feature is enabled.
+#[test]
+fn ansi_formatting_by_config() {
+    let output = "foo\tbar\tfoobar\n\
+         \x1b[31mföÅ\x1b[0m\t\x1b[32mbär\x1b[0m\t\x1b[36mfoobar\x1b[0m\n\
+         \x1b[34mfoo\tbar\tfoobar\n\x1b[0m";
+
+    iseq(
+        tabw().ansi(true),
         &output[..],
         "foo  bar  foobar\n\
          \x1b[31mföÅ\x1b[0m  \x1b[32mbär\x1b[0m  \x1b[36mfoobar\x1b[0m\n\
