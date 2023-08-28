@@ -98,6 +98,7 @@ pub struct TabWriter<W> {
     minwidth: usize,
     padding: usize,
     alignment: Alignment,
+    ansi: bool,
 }
 
 /// `Alignment` represents how a `TabWriter` should align text within its cell.
@@ -135,6 +136,7 @@ impl<W: io::Write> TabWriter<W> {
             minwidth: 2,
             padding: 2,
             alignment: Alignment::Left,
+            ansi: cfg!(feature = "ansi_formatting"),
         }
     }
 
@@ -164,6 +166,15 @@ impl<W: io::Write> TabWriter<W> {
     /// The default alignment is `Alignment::Left`.
     pub fn alignment(mut self, alignment: Alignment) -> TabWriter<W> {
         self.alignment = alignment;
+        self
+    }
+
+    /// Ignore ANSI escape codes when computing the number of display columns.
+    ///
+    /// This is disabled by default. (But is enabled by default when the
+    /// deprecated `ansi_formatting` crate feature is enabled.)
+    pub fn ansi(mut self, yes: bool) -> TabWriter<W> {
+        self.ansi = yes;
         self
     }
 
@@ -199,7 +210,11 @@ impl<W: io::Write> TabWriter<W> {
         let mut curcell = Cell::new(self.buf.position() as usize);
         mem::swap(&mut self.curcell, &mut curcell);
 
-        curcell.update_width(&self.buf.get_ref());
+        if self.ansi {
+            curcell.update_width(&self.buf.get_ref(), count_columns_ansi);
+        } else {
+            curcell.update_width(&self.buf.get_ref(), count_columns_noansi);
+        }
         self.curline_mut().push(curcell);
     }
 
@@ -221,9 +236,13 @@ impl Cell {
         Cell { start, width: 0, size: 0 }
     }
 
-    fn update_width(&mut self, buf: &[u8]) {
+    fn update_width(
+        &mut self,
+        buf: &[u8],
+        count_columns: impl Fn(&[u8]) -> usize,
+    ) {
         let end = self.start + self.size;
-        self.width = display_columns(&buf[self.start..end]);
+        self.width = count_columns(&buf[self.start..end]);
     }
 }
 
@@ -379,8 +398,7 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
     ws
 }
 
-#[cfg(not(feature = "ansi_formatting"))]
-fn display_columns(bytes: &[u8]) -> usize {
+fn count_columns_noansi(bytes: &[u8]) -> usize {
     use unicode_width::UnicodeWidthChar;
 
     // If we have a Unicode string, then attempt to guess the number of
@@ -394,8 +412,7 @@ fn display_columns(bytes: &[u8]) -> usize {
     }
 }
 
-#[cfg(feature = "ansi_formatting")]
-fn display_columns(bytes: &[u8]) -> usize {
+fn count_columns_ansi(bytes: &[u8]) -> usize {
     use unicode_width::UnicodeWidthChar;
 
     // If we have a Unicode string, then attempt to guess the number of
@@ -409,12 +426,34 @@ fn display_columns(bytes: &[u8]) -> usize {
     }
 }
 
-#[cfg(feature = "ansi_formatting")]
 fn strip_formatting<'t>(input: &'t str) -> std::borrow::Cow<'t, str> {
-    use regex::Regex;
-
-    lazy_static::lazy_static! {
-        static ref RE: Regex = Regex::new(r#"\x1B\[.+?m"#).unwrap();
+    let mut escapes = find_ansi_escapes(input).peekable();
+    if escapes.peek().is_none() {
+        return std::borrow::Cow::Borrowed(input);
     }
-    RE.replace_all(input, "")
+    let mut without_escapes = String::with_capacity(input.len());
+    let mut last_end = 0;
+    for mat in escapes {
+        without_escapes.push_str(&input[last_end..mat.start]);
+        last_end = mat.end;
+    }
+    without_escapes.push_str(&input[last_end..]);
+    std::borrow::Cow::Owned(without_escapes)
+}
+
+fn find_ansi_escapes<'t>(
+    input: &'t str,
+) -> impl Iterator<Item = std::ops::Range<usize>> + 't {
+    const ESCAPE_PREFIX: &str = "\x1B[";
+    let mut last_end = 0;
+    std::iter::from_fn(move || {
+        let start = last_end
+            + input[last_end..].match_indices(ESCAPE_PREFIX).next()?.0;
+        let after_prefix = start + ESCAPE_PREFIX.len();
+        let end = after_prefix
+            + input[after_prefix..].match_indices('m').next()?.0
+            + 1;
+        last_end = end;
+        Some(start..end)
+    })
 }

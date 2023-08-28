@@ -87,13 +87,16 @@ tabwriter = "1"
 
 ### Dealing with ANSI escape codes
 
-If you want `tabwriter` to be aware of ANSI escape codes, then compile it with
-the `ansi_formatting` feature enabled.
+If you want `tabwriter` to be aware of ANSI escape codes, then you should
+enable the `TabWriter::ansi` option. Previously this was done by enabling the
+crate feature `ansi_formatting`, but that feature is now deprecated. (If you
+use it, then `TabWriter::ansi` will be automatically enabled for you. Otherwise
+it is disabled by default.)
 
 
 ### Minimum Rust version policy
 
-This crate's minimum supported `rustc` version is `1.34.0`.
+This crate's minimum supported `rustc` version is `1.67.0`.
 
 The current policy is that the minimum Rust version required to use this crate
 can be increased in minor version updates. For example, if `crate 1.0` requires

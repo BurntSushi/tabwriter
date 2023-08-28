@@ -9,18 +9,11 @@ repository = "https://github.com/BurntSushi/tabwriter"
 readme = "README.md"
 keywords = ["tabs", "elastic", "aligned", "whitespace", "table"]
 license = "Unlicense/MIT"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-unicode-width = "0.1"
-lazy_static =  { version = "1", optional = true}
-
-[dependencies.regex]
-version = "1.3"
-optional = true
-default-features = false
-features = ["std"]
+unicode-width = "0.1.10"
 
 [features]
 default = []
-ansi_formatting = ["regex", "lazy_static"]
+ansi_formatting = []
