@@ -99,6 +99,7 @@ pub struct TabWriter<W> {
     padding: usize,
     alignment: Alignment,
     ansi: bool,
+    tab_indent: bool,
 }
 
 /// `Alignment` represents how a `TabWriter` should align text within its cell.
@@ -137,6 +138,7 @@ impl<W: io::Write> TabWriter<W> {
             padding: 2,
             alignment: Alignment::Left,
             ansi: cfg!(feature = "ansi_formatting"),
+            tab_indent: false,
         }
     }
 
@@ -175,6 +177,15 @@ impl<W: io::Write> TabWriter<W> {
     /// deprecated `ansi_formatting` crate feature is enabled.)
     pub fn ansi(mut self, yes: bool) -> TabWriter<W> {
         self.ansi = yes;
+        self
+    }
+
+    /// Always use tabs for indentation columns (i.e., padding of
+    /// leading empty cells on the left).
+    ///
+    /// This is disabled by default.
+    pub fn tab_indent(mut self, yes: bool) -> TabWriter<W> {
+        self.tab_indent = yes;
         self
     }
 
@@ -295,6 +306,8 @@ impl<W: io::Write> io::Write for TabWriter<W> {
             } else {
                 first = false
             }
+
+            let mut use_tabs = self.tab_indent;
             for (i, cell) in line.iter().enumerate() {
                 let bytes =
                     &self.buf.get_ref()[cell.start..cell.start + cell.size];
@@ -303,6 +316,12 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                     assert_eq!(i, line.len() - 1);
                     self.w.write_all(bytes)?;
                 } else {
+                    if use_tabs && cell.size == 0 {
+                        write!(&mut self.w, "\t")?;
+                        continue;
+                    }
+                    use_tabs = false;
+
                     assert!(widths[i] >= cell.width);
                     let extra_space = widths[i] - cell.width;
                     let (left_spaces, mut right_spaces) = match self.alignment

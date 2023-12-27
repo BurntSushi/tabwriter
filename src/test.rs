@@ -10,7 +10,7 @@ fn ordie<T, E: ToString>(r: Result<T, E>) -> T {
 }
 
 fn readable_str(s: &str) -> String {
-    s.replace(" ", "·")
+    s.replace(" ", "·").replace("\t", "<TAB>")
 }
 
 fn tabw() -> TabWriter<Vec<u8>> {
@@ -240,5 +240,26 @@ fn ansi_formatting_by_config() {
         "foo  bar  foobar\n\
          \x1b[31mföÅ\x1b[0m  \x1b[32mbär\x1b[0m  \x1b[36mfoobar\x1b[0m\n\
          \x1b[34mfoo  bar  foobar\n\x1b[0m",
+    )
+}
+
+#[test]
+fn tab_indent() {
+    iseq(
+        tabw().tab_indent(true).padding(1),
+        "
+type cell struct {
+\tsize\tint\t// cell size in bytes
+\twidth\tint\t// cell width in runes
+\thtab\tbool\t// true if the cell is terminated by an htab ('\\t')
+}
+",
+        "
+type cell struct {
+\tsize  int  // cell size in bytes
+\twidth int  // cell width in runes
+\thtab  bool // true if the cell is terminated by an htab ('\\t')
+}
+",
     )
 }
