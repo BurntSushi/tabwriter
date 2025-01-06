@@ -103,7 +103,7 @@ pub struct TabWriter<W> {
 }
 
 /// `Alignment` represents how a `TabWriter` should align text within its cell.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Alignment {
     /// Text should be aligned with the left edge of the cell
     Left,
@@ -287,7 +287,11 @@ impl<W: io::Write> io::Write for TabWriter<W> {
         if self.curcell.size > 0 {
             self.term_curcell();
         }
-        let widths = cell_widths(&self.lines, self.minwidth);
+        let widths = cell_widths(
+            &self.lines,
+            self.minwidth,
+            self.alignment != Alignment::Left,
+        );
 
         // This is a trick to avoid allocating padding for every cell.
         // Just allocate the most we'll ever need and borrow from it.
@@ -312,7 +316,7 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                 let bytes =
                     &self.buf.get_ref()[cell.start..cell.start + cell.size];
                 if i >= widths.len() {
-                    // There is no width for the last column
+                    // There may be no width for the last column
                     assert_eq!(i, line.len() - 1);
                     self.w.write_all(bytes)?;
                 } else {
@@ -333,9 +337,15 @@ impl<W: io::Write> io::Write for TabWriter<W> {
                         }
                     };
                     right_spaces += self.padding;
-                    write!(&mut self.w, "{}", &padding[0..left_spaces])?;
+                    // Omit initial padding if this is the last cell and its empty
+                    if !(bytes.len() == 0 && i + 1 == line.len()) {
+                        write!(&mut self.w, "{}", &padding[0..left_spaces])?;
+                    }
                     self.w.write_all(bytes)?;
-                    write!(&mut self.w, "{}", &padding[0..right_spaces])?;
+                    // Omit final padding if this is the last cell.
+                    if i + 1 < line.len() {
+                        write!(&mut self.w, "{}", &padding[0..right_spaces])?;
+                    }
                 }
             }
         }
@@ -386,7 +396,13 @@ impl<W: ::std::any::Any> error::Error for IntoInnerError<W> {
     }
 }
 
-fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
+/// Compute the widths of all cells.
+/// If `trailing_cell` is set, then a cell is placed to the right of the final tab on each line.
+fn cell_widths(
+    lines: &Vec<Vec<Cell>>,
+    minwidth: usize,
+    trailing_cell: bool,
+) -> Vec<Vec<usize>> {
     // Naively, this algorithm looks like it could be O(n^2m) where `n` is
     // the number of lines and `m` is the number of contiguous columns.
     //
@@ -397,13 +413,21 @@ fn cell_widths(lines: &Vec<Vec<Cell>>, minwidth: usize) -> Vec<Vec<usize>> {
         if iline.is_empty() {
             continue;
         }
-        for col in ws[i].len()..(iline.len() - 1) {
+        let n_cols = iline.len() - 1 + trailing_cell as usize;
+        for col in ws[i].len()..n_cols {
             let mut width = minwidth;
             let mut contig_count = 0;
             for line in lines[i..].iter() {
-                if col + 1 >= line.len() {
-                    // ignores last column
-                    break;
+                if trailing_cell {
+                    if col >= line.len() {
+                        // does not ignore last column
+                        break;
+                    }
+                } else {
+                    if col + 1 >= line.len() {
+                        // ignores last column
+                        break;
+                    }
                 }
                 contig_count += 1;
                 width = cmp::max(width, line[col].width);
