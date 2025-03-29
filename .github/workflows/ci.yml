@@ -53,7 +53,8 @@ jobs:
     - run: cargo doc --verbose
     - run: cargo test --verbose
     - run: cargo test --verbose --features ansi_formatting
-    - run: cargo build --verbose --manifest-path tabwriter-bin/Cargo.toml
+    - if: matrix.build != 'pinned'
+      run: cargo build --verbose --manifest-path tabwriter-bin/Cargo.toml
 
   rustfmt:
     name: rustfmt
