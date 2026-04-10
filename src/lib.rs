@@ -163,7 +163,7 @@ impl<W: io::Write> TabWriter<W> {
         self
     }
 
-    /// Set the alignment of text within cells. This will effect future flushes.
+    /// Set the alignment of text within cells. This will affect future flushes.
     ///
     /// The default alignment is `Alignment::Left`.
     pub fn alignment(mut self, alignment: Alignment) -> TabWriter<W> {
